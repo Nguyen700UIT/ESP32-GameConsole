@@ -1,0 +1,16 @@
+#include "Snake/snake_bait.h"
+
+namespace snake {
+
+int headX = 64;
+int headY = 32;
+int prevTailX = -1;
+int prevTailY = -1;
+direction snakeDir = stop;
+int nTail = 1;
+int tailX[100];
+int tailY[100];
+
+const uint16_t baitColor[2] = {TFT_ORANGE, TFT_RED};
+
+}
