@@ -1,5 +1,6 @@
 #include "pong/pong.h"
 
+
 namespace pong {
 
 int playerScore = 0;
@@ -13,19 +14,11 @@ void playerMove()
 {
     if (isUp && paddleLeftY > 0)
     {
-        if (digitalRead(UP) == HIGH) //Prevent miss
-        {
-            isUp = false;
-        }
         paddleLeftY = max(0, paddleLeftY - PADDLE_SPEED);
     }
 
     if (isDown && paddleLeftY < GAME_HEIGHT - PADDLE_HEIGHT)
     {
-        if (digitalRead(DOWN) == HIGH) //Prevent miss
-        {
-            isDown = false;
-        }
         paddleLeftY = min(GAME_HEIGHT - PADDLE_HEIGHT, paddleLeftY + PADDLE_SPEED);
     }
 }
@@ -57,26 +50,65 @@ void ballBehavior()
     ballX += ballSpeedX;
     ballY += ballSpeedY;
 
-    if (ballY <= 0 || ballY >= GAME_HEIGHT - BALL_SIZE)
+    // Bounce off top wall
+    if (ballY <= 0)
     {
+        ballY = 0;
         ballSpeedY = -ballSpeedY;
+        //minimum horizontal speed after wall bounce
+        if (abs(ballSpeedX) < MIN_BALL_SPEED_X) {
+            ballSpeedX = (ballSpeedX > 0) ? MIN_BALL_SPEED_X : -MIN_BALL_SPEED_X;
+        }
+    }
+    // Bounce off bottom wall
+    else if (ballY >= GAME_HEIGHT - BALL_SIZE)
+    {
+        ballY = GAME_HEIGHT - BALL_SIZE;
+        ballSpeedY = -ballSpeedY;
+        //minimum horizontal speed after wall bounce
+        if (abs(ballSpeedX) < MIN_BALL_SPEED_X) {
+            ballSpeedX = (ballSpeedX > 0) ? MIN_BALL_SPEED_X : -MIN_BALL_SPEED_X;
+        }
     }
 
-    if (ballX <= PADDLE_WIDTH &&
-        ballY + BALL_SIZE >= paddleLeftY &&
-        ballY <= paddleLeftY + PADDLE_HEIGHT)
+    // Left Paddle collision - Only check if ball is moving left
+    if (ballSpeedX < 0 && ballX <= PADDLE_WIDTH)
     {
-        float relative = (ballY - (paddleLeftY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
-    
-        ballSpeedY = relative * BALL_MAX_SPEED;
-        ballSpeedX = -ballSpeedX;
+        if (ballY + BALL_SIZE >= paddleLeftY && ballY <= paddleLeftY + PADDLE_HEIGHT)
+        {
+            ballX = PADDLE_WIDTH; // Prevent ball from going behind paddle and triggering a score
+            float relative = (ballY + (BALL_SIZE / 2.0) - (paddleLeftY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
+            ballSpeedY = constrain(relative, -1.0, 1.0) * BALL_MAX_SPEED; // Use BALL_MAX_SPEED for vertical component
+            // Ensure minimum horizontal speed after paddle hit
+            if (abs(ballSpeedX) < MIN_BALL_SPEED_X) {
+                ballSpeedX = (ballSpeedX > 0) ? MIN_BALL_SPEED_X : -MIN_BALL_SPEED_X;
+            }
+            ballSpeedX = abs(ballSpeedX); 
+
+            float speed = sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+            ballSpeedX = (ballSpeedX / speed) * BALL_BASE_SPEED;
+            ballSpeedY = (ballSpeedY / speed) * BALL_BASE_SPEED;
+        }
     }
 
-    if (ballX >= SCREEN_WIDTH - PADDLE_WIDTH - BALL_SIZE &&
-        ballY + BALL_SIZE >= paddleRightY &&
-        ballY <= paddleRightY + PADDLE_HEIGHT)
+    // Right Paddle collision - Only check if ball is moving right
+    if (ballSpeedX > 0 && ballX >= SCREEN_WIDTH - PADDLE_WIDTH - BALL_SIZE)
     {
-        ballSpeedX = -ballSpeedX;
+        if (ballY + BALL_SIZE >= paddleRightY && ballY <= paddleRightY + PADDLE_HEIGHT)
+        {
+            ballX = SCREEN_WIDTH - PADDLE_WIDTH - BALL_SIZE; // Prevent ball from getting stuck
+            float relative = (ballY + (BALL_SIZE / 2.0) - (paddleRightY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
+            ballSpeedY = constrain(relative, -1.0, 1.0) * BALL_MAX_SPEED; // Use BALL_MAX_SPEED for vertical component
+            // Ensure minimum horizontal speed after paddle hit
+            if (abs(ballSpeedX) < MIN_BALL_SPEED_X) {
+                ballSpeedX = (ballSpeedX > 0) ? MIN_BALL_SPEED_X : -MIN_BALL_SPEED_X;
+            }
+            ballSpeedX = -abs(ballSpeedX);
+
+            float speed = sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+            ballSpeedX = (ballSpeedX / speed) * BALL_BASE_SPEED;
+            ballSpeedY = (ballSpeedY / speed) * BALL_BASE_SPEED;
+        }
     }
 }
 
@@ -127,8 +159,12 @@ void resetGame()
     paddleRightY = (GAME_HEIGHT - PADDLE_HEIGHT) / 2;
     ballX = (SCREEN_WIDTH - BALL_SIZE) / 2;
     ballY = (GAME_HEIGHT - BALL_SIZE) / 2;
-    ballSpeedX = 2.0;
-    ballSpeedY = 2.0;
+    ballSpeedX = BALL_BASE_SPEED;
+    ballSpeedY = BALL_BASE_SPEED;
+    aiSpeed = 3;
+    aiReaction = 14;
+    lastPredictionTime = 0;
+    resetBall();
 }
 
 void gameLogic()

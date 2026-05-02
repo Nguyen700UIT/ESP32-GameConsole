@@ -19,10 +19,6 @@ void tick()
 {
     if (!gameOverFlag)
     {
-        if (reseted)
-        {
-            reseted = false;
-        }
         gameLogic();
         render();
     }
@@ -85,8 +81,8 @@ void onButtonReleased(console::Button button)
       isDown = false;
       break;
     case console::Button::Up:
-        isUp = false;
-        break;
+      isUp = false;
+      break;
     case console::Button::Left:
     case console::Button::Right:
     case console::Button::Reset:

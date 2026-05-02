@@ -4,8 +4,8 @@ namespace pong {
 
 float ballX = 0;
 float ballY = 0;
-float ballSpeedX = 6.0;
-float ballSpeedY = 6.0;
+float ballSpeedX = BALL_BASE_SPEED;
+float ballSpeedY = BALL_BASE_SPEED;
 
 void resetBall()
 {

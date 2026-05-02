@@ -166,6 +166,7 @@ void returnToMenu()
   {
     activeGame->exit();
   }
+  for (int i = 0; i < kButtonCount; i++) stablePressed[i] = false;
   enterMenu();
 }
 
@@ -175,10 +176,6 @@ void handleButtonPress(console::Button button, unsigned long now)
   {
     resetPressedAt = now;
     resetLongHandled = false;
-    if (activeGame != nullptr) 
-    {
-      return;
-    }
   }
 
   if (activeGame == nullptr) //Chua chon game
@@ -255,6 +252,14 @@ void handleInterrupts()
       {
         handleButtonRelease(kButtons[event.buttonIdx]);
       }
+    }
+  }
+
+  // Prevent stuck
+  for (int i = 0; i < kButtonCount; ++i) {
+    if (stablePressed[i] && digitalRead(kButtonPins[i]) == HIGH) {
+      stablePressed[i] = false;
+      handleButtonRelease(kButtons[i]);
     }
   }
 }
