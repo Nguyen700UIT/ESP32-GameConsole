@@ -6,7 +6,6 @@
 
 
 namespace tetris {
-
 void enter()
 {
   initDisplay();
@@ -123,6 +122,21 @@ void onButtonPressed(console::Button button)
       break;
     case console::Button::Reset:
       reseted = true;
+      break;
+  }
+}
+
+void onButtonReleased(console::Button button)
+{
+  switch (button)
+  {
+    case console::Button::Down:
+      isDown = false;
+      break;
+    case console::Button::Up:
+    case console::Button::Left:
+    case console::Button::Right:
+    case console::Button::Reset:
       break;
   }
 }

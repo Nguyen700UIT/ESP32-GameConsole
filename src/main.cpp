@@ -2,6 +2,8 @@
 #include <WiFi.h>
 #include <esp_bt.h>
 #include <TFT_eSPI.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
 #include "apps/flappy_bird_app.h"
 #include "apps/pong_app.h"
@@ -18,8 +20,15 @@ constexpr uint8_t kRightPin = 33;
 constexpr uint8_t kResetPin = 13;
 constexpr uint8_t kBL = 22;
 constexpr uint8_t kButtonCount = 5;
-constexpr unsigned long kDebounceMs = 35;
-constexpr unsigned long kMenuHoldMs = 1200;
+constexpr unsigned long kDebounceMs = 10;
+constexpr unsigned long kMenuHoldMs = 2000;
+constexpr uint8_t kButtonQueueLength = 16;
+
+struct ButtonEvent {
+  uint8_t buttonIdx;
+  bool pressed;
+  unsigned long atMs;
+};
 
 struct GameEntry {
   const char* name;
@@ -28,6 +37,7 @@ struct GameEntry {
   void (*tick)();
   void (*exit)();
   void (*onPress)(console::Button button);
+  void (*onRelease)(console::Button button);
 };
 
 const uint8_t kButtonPins[kButtonCount] = {
@@ -47,27 +57,53 @@ const console::Button kButtons[kButtonCount] = {
 };
 
 const GameEntry kGames[] = {
-  {"Flappy Bird", flappy_bird::enter, flappy_bird::tick, flappy_bird::exit, flappy_bird::onButtonPressed},
-  {"Snake", snake::enter, snake::tick, snake::exit, snake::onButtonPressed},
-  {"Pong", pong::enter, pong::tick, pong::exit, pong::onButtonPressed},
-  {"Tetris", tetris::enter, tetris::tick, tetris::exit, tetris::onButtonPressed},
+  {"Flappy Bird", flappy_bird::enter, flappy_bird::tick, flappy_bird::exit, flappy_bird::onButtonPressed, flappy_bird::onButtonReleased},
+  {"Snake", snake::enter, snake::tick, snake::exit, snake::onButtonPressed, snake::onButtonReleased},
+  {"Pong", pong::enter, pong::tick, pong::exit, pong::onButtonPressed, pong::onButtonReleased},
+  {"Tetris", tetris::enter, tetris::tick, tetris::exit, tetris::onButtonPressed, tetris::onButtonReleased},
 };
 
 constexpr size_t kGameCount = sizeof(kGames) / sizeof(kGames[0]);
 
 TFT_eSPI menuTft;
-const GameEntry* activeGame = nullptr;
+const GameEntry* activeGame = nullptr; //Con tro hang 
 size_t selectedIndex = 0;
 bool menuDirty = true;
+volatile unsigned long isrLastChangeAt[kButtonCount] = {0};
 bool stablePressed[kButtonCount] = {false};
-bool rawPressed[kButtonCount] = {false};
-unsigned long lastChangeAt[kButtonCount] = {0};
 unsigned long resetPressedAt = 0;
 bool resetLongHandled = false;
+QueueHandle_t buttonEventQueue = nullptr;
+
 
 uint16_t rgb(uint8_t r, uint8_t g, uint8_t b)
 {
   return menuTft.color565(r, g, b);
+}
+
+void IRAM_ATTR buttonISR(void *arg)
+{
+  uint32_t buttonIdx = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(arg));
+  unsigned long now = xTaskGetTickCountFromISR() * portTICK_PERIOD_MS;
+
+  if(now - isrLastChangeAt[buttonIdx] >= kDebounceMs)
+  {
+    bool currentRaw = digitalRead(kButtonPins[buttonIdx]) == LOW;
+    ButtonEvent event = {
+      static_cast<uint8_t>(buttonIdx),
+      currentRaw,
+      now,
+    };
+
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+
+    isrLastChangeAt[buttonIdx] = now;
+    if (buttonEventQueue != nullptr)
+    {
+      xQueueSendFromISR(buttonEventQueue, &event, &higherPriorityTaskWoken);
+      portYIELD_FROM_ISR(higherPriorityTaskWoken); //Run prioritized task when ISR end
+    }
+  }
 }
 
 void drawMenu()
@@ -139,7 +175,7 @@ void handleButtonPress(console::Button button, unsigned long now)
   {
     resetPressedAt = now;
     resetLongHandled = false;
-    if (activeGame != nullptr)
+    if (activeGame != nullptr) 
     {
       return;
     }
@@ -155,6 +191,7 @@ void handleButtonPress(console::Button button, unsigned long now)
         break;
       case console::Button::Down:
         selectedIndex = (selectedIndex + 1) % kGameCount; //Xoay vong
+   
         menuDirty = true;
         break;
       case console::Button::Right:
@@ -170,45 +207,58 @@ void handleButtonPress(console::Button button, unsigned long now)
   activeGame->onPress(button);
 }
 
+void enterDeepSleep();
+
 void handleButtonRelease(console::Button button)
 {
   if (button == console::Button::Reset)
   {
-    if (activeGame != nullptr && !resetLongHandled) //Not returning menu if not hold reset for long
-    {
-      activeGame->onPress(button); 
-    }
+    bool handledLongReset = resetLongHandled;
     resetLongHandled = false;
+    if (activeGame != nullptr && !handledLongReset)
+    {
+      activeGame->onPress(button);
+    }
+    return;
+  }
+
+  if (activeGame != nullptr)
+  {
+    activeGame->onRelease(button);
   }
 }
 
-void pollButtons()
+void handleInterrupts()
 {
-  const unsigned long now = millis();
-
-  for (uint8_t i = 0; i < kButtonCount; ++i)
+  if (buttonEventQueue == nullptr)
   {
-    const bool currentRaw = (digitalRead(kButtonPins[i]) == LOW);
-    if (currentRaw != rawPressed[i])
+    return;
+  }
+
+  ButtonEvent event;
+  while (xQueueReceive(buttonEventQueue, &event, 0) == pdPASS)
+  {
+    if (event.buttonIdx >= kButtonCount)
     {
-      rawPressed[i] = currentRaw; //Read changed button state before debouncing
-      lastChangeAt[i] = now; //Save time button state changed
+      continue;
     }
 
-    if ((now - lastChangeAt[i] >= kDebounceMs) && (stablePressed[i] != currentRaw)) //After debounce time for that button check if button still at that state
+    if (stablePressed[event.buttonIdx] != event.pressed)
     {
-      stablePressed[i] = currentRaw;
-      if (stablePressed[i])
+      stablePressed[event.buttonIdx] = event.pressed;
+
+      if (stablePressed[event.buttonIdx])
       {
-        handleButtonPress(kButtons[i], now);
+        handleButtonPress(kButtons[event.buttonIdx], event.atMs);
       }
       else
       {
-        handleButtonRelease(kButtons[i]);
+        handleButtonRelease(kButtons[event.buttonIdx]);
       }
     }
   }
 }
+
 
 void enterDeepSleep()
 {
@@ -229,13 +279,14 @@ void enterDeepSleep()
 
 void handleLongReset()
 {
-  if (!stablePressed[4] || resetLongHandled) //No press reset or handled long reset
+  if (!stablePressed[4] || resetLongHandled) //Released or handled long reset
   {
     return;
   }
 
   if (millis() - resetPressedAt >= kMenuHoldMs)
   {
+    resetLongHandled = true;
     if (activeGame == nullptr)
     {
       enterDeepSleep();
@@ -244,7 +295,6 @@ void handleLongReset()
     {
       returnToMenu();
     }
-    resetLongHandled = true;
   }
 }
 
@@ -263,6 +313,14 @@ void setup()
   pinMode(kResetPin, INPUT_PULLUP);
   pinMode(kBL, OUTPUT);
 
+  buttonEventQueue = xQueueCreate(kButtonQueueLength, sizeof(ButtonEvent));
+  
+  for (int i = 0; i < kButtonCount; ++i)
+  {
+    void* idxToPtr = reinterpret_cast<void*>(static_cast<uintptr_t>(i));
+    attachInterruptArg(digitalPinToInterrupt(kButtonPins[i]), buttonISR, idxToPtr, CHANGE);
+  }
+
   digitalWrite(kBL, HIGH);
   randomSeed(micros()); //Better random numbers
   enterMenu();
@@ -272,7 +330,7 @@ void setup()
 
 void loop()
 {
-  pollButtons();
+  handleInterrupts();
   handleLongReset();
   if (activeGame == nullptr)
   {
@@ -288,5 +346,5 @@ void loop()
   {
     activeGame->tick();
   }
-}
 
+}

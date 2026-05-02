@@ -8,5 +8,6 @@ void enter();
 void tick();
 void exit();
 void onButtonPressed(console::Button button);
+void onButtonReleased(console::Button button);
 
 }

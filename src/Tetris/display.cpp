@@ -4,7 +4,7 @@ namespace tetris {
 
 TFT_eSPI tft;
 TFT_eSprite tetrisCanvas = TFT_eSprite(&tft);
-TFT_eSprite UICanvas = TFT_eSprite(&tft);
+
 
 void initDisplay()
 {

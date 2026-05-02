@@ -45,7 +45,6 @@ void tick()
                 if(score > bestScore)
                 {
                     bestScore = score; //Update score
-                    prefs.putInt("snake", bestScore); //Store in flash
                 }
                 if (score != prevScore)
                 {
@@ -70,6 +69,7 @@ void tick()
 
 void exit()
 {
+    prefs.putInt("snake", bestScore); //Store in flash
     prefs.end();
     tft_snake.fillScreen(TFT_BLACK);
     isUp = false;
@@ -111,6 +111,11 @@ void onButtonPressed(console::Button button)
             reseted = true;
             break;
     }
+}
+
+void onButtonReleased(console::Button button)
+{
+    (void)button;
 }
 
 }

@@ -13,6 +13,7 @@ uint16_t nextPieceColor;
 bool touchGround = false;
 unsigned long lastTouchTime = 0;
 unsigned long lastDelayedFall = 0;
+unsigned long lastHoldFall = 0;
 unsigned long lastGameOverTime = 0;
 bool erasedDeathScreen = false;
 bool erasedPlayingUI = false;
@@ -128,6 +129,11 @@ bool checkCollision(u_int8_t shape[4][4], int x, int y)
 
 void movePiece()
 {
+    if (isDown && digitalRead(DOWN) == HIGH) //Prevent miss
+    {
+      isDown = false;
+    }
+
     if (isUp)
     {
       rotatePiece();
@@ -151,10 +157,14 @@ void movePiece()
     }
     else if (isDown)
     {
-      if (digitalRead(DOWN) == HIGH) isDown = false;
-      if (!checkCollision(currPiece.shape, currPiece.x, currPiece.y + BLOCK_SIZE))
+      unsigned long now = millis();
+      if(now - lastHoldFall >= 100 && isDown) //100ms each hold
       {
-        currPiece.y += BLOCK_SIZE;
+        if (!checkCollision(currPiece.shape, currPiece.x, currPiece.y + BLOCK_SIZE))
+        {
+          currPiece.y += BLOCK_SIZE;
+        }
+        lastHoldFall = now;
       }
     }
 }

@@ -41,7 +41,6 @@ void resetGame()
   resetBird();
   lost = false;
   isUp = false;
-  delay(500);
 }
 
 void renderGame()

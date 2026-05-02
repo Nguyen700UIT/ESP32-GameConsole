@@ -9,10 +9,15 @@
 
 
 namespace flappy_bird {
+namespace {
+int savedBestScore = 0;
+}
+
 void enter()
 {
   prefs.begin("scores", false); //Not read only
   bestScore = prefs.getInt("bird", 0); //Default = 0, Read from flash
+  savedBestScore = bestScore;
   initAudio();
   initDisplay();
   resetGame();
@@ -35,7 +40,10 @@ void tick()
     birdDropLogic();
     collisionLogic();
     scored();
-    prefs.putInt("bird", bestScore);
+    if (bestScore != savedBestScore)
+    {
+      savedBestScore = bestScore;
+    }
     updateTubes();
     renderGame();
   }
@@ -46,6 +54,11 @@ void tick()
 
 void exit()
 {
+  if (bestScore != savedBestScore)
+  {
+    prefs.putInt("bird", bestScore);
+    savedBestScore = bestScore;
+  }
   prefs.end();
   shutdownAudio();
   canvas.deleteSprite();
@@ -72,6 +85,11 @@ void onButtonPressed(console::Button button)
     case console::Button::Right:
       break;
   }
+}
+
+void onButtonReleased(console::Button button)
+{
+  (void)button;
 }
 
 }

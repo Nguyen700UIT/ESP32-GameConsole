@@ -77,4 +77,22 @@ void onButtonPressed(console::Button button)
     }
 }
 
+void onButtonReleased(console::Button button)
+{
+  switch (button)
+  {
+    case console::Button::Down:
+      isDown = false;
+      break;
+    case console::Button::Up:
+        isUp = false;
+        break;
+    case console::Button::Left:
+    case console::Button::Right:
+    case console::Button::Reset:
+      break;
+
+}
+}
+
 }

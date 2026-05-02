@@ -13,7 +13,7 @@ void playerMove()
 {
     if (isUp && paddleLeftY > 0)
     {
-        if (digitalRead(UP) == HIGH)
+        if (digitalRead(UP) == HIGH) //Prevent miss
         {
             isUp = false;
         }
@@ -22,7 +22,7 @@ void playerMove()
 
     if (isDown && paddleLeftY < GAME_HEIGHT - PADDLE_HEIGHT)
     {
-        if (digitalRead(DOWN) == HIGH)
+        if (digitalRead(DOWN) == HIGH) //Prevent miss
         {
             isDown = false;
         }
@@ -66,6 +66,9 @@ void ballBehavior()
         ballY + BALL_SIZE >= paddleLeftY &&
         ballY <= paddleLeftY + PADDLE_HEIGHT)
     {
+        float relative = (ballY - (paddleLeftY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
+    
+        ballSpeedY = relative * BALL_MAX_SPEED;
         ballSpeedX = -ballSpeedX;
     }
 

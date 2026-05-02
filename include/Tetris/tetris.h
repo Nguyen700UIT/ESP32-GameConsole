@@ -31,6 +31,7 @@ extern uint16_t nextPieceColor;
 extern bool touchGround;
 extern unsigned long lastTouchTime;
 extern unsigned long lastDelayedFall;
+extern unsigned long lastHoldFall;
 extern unsigned long lastGameOverTime;
 extern bool erasedDeathScreen;
 extern bool erasedPlayingUI;

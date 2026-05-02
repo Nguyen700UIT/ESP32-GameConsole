@@ -95,7 +95,7 @@ int birdWidth = 17;
 int birdHeight = 17;
 float birdVelocity = 0;
 const float GRAVITY = 0.4;
-float jumpForce = -4.5;
+float jumpForce = -4.0;
 
 void updateAnimation()
 {

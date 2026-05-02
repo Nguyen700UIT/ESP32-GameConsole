@@ -2,7 +2,7 @@
 
 namespace flappy_bird {
 
-int tubeGap = 70;
+int tubeGap = 55;
 int TubeWidth = 26;
 int capWidth = 32;
 int capHeight = 12;
@@ -57,7 +57,7 @@ void drawTube()
 void updateTubes()
 {
   for (int i = 0; i < 3; ++i) {
-    tube.tubeX[i] -= 2;
+    tube.tubeX[i] -= 3; //Speed
 
     if (tube.tubeX[i] + capWidth < 0) {
       int maxX = tube.tubeX[0];
