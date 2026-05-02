@@ -17,22 +17,22 @@ void enter()
 
 void tick()
 {
-    if (!gameOverFlag)
-    {
-        gameLogic();
+//     if (!gameOverFlag)
+//     {
+        gameLogicForHumanML();
         render();
-    }
-    else
-    {
-        drawGameOver();
-        if (reseted)
-        {
-            tft.fillScreen(TFT_BLACK);
-            resetGame();
-            render();
-            reseted = false;
-        }
-    }
+    // }
+    // else
+    // {
+    //     drawGameOver();
+    //     if (reseted)
+    //     {
+    //         tft.fillScreen(TFT_BLACK);
+    //         resetGame();
+    //         render();
+    //         reseted = false;
+    //     }
+    // }
 }
 
 void exit()

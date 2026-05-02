@@ -5,7 +5,7 @@
 #include "pong/ball.h"
 
 #define AI_PREDICTION_INTERVAL 100
-
+#define LOG_INTERVAL 20
 namespace pong {
 
 extern int playerScore;
@@ -14,8 +14,14 @@ extern bool lost;
 extern int aiSpeed;
 extern int aiReaction;
 extern unsigned long lastPredictionTime;
+extern unsigned long lastLogTime;
 
-
+void gameLogicForHumanML();
+void gameLogicForAIML();
+int aiMoveForML();
+int playerMoveForML();
+void logPlayer(int action);
+void logAI(int action);
 void playerMove();
 void aiMove();
 void ballBehavior();
