@@ -44,22 +44,24 @@ int playerMoveForML()
 
 void logPlayer(int action)
 {
-    Serial.printf("%f,%f,%f,%f,%d\n",
+    Serial.printf("%f,%f,%f,%f,%f,%d\n",
+        ballX,
         ballY,
         ballSpeedY,
         ballSpeedX,
-        paddleLeftY,
+        (float)paddleLeftY,
         action
     );
 }
 
 void logAI(int action)
 {
-    Serial.printf("%f,%f,%f,%f,%d\n",
+    Serial.printf("%f,%f,%f,%f,%f,%d\n",
+        ballX,
         ballY,
         ballSpeedY,
         ballSpeedX,
-        paddleRightY,
+        (float)paddleRightY,
         action
     );
 }
@@ -241,17 +243,39 @@ void resetGame()
 
 void gameLogicForAIML()
 {
-    playerMove();
+    unsigned long now = millis();
+    // Capture state BEFORE movement
+    float currentBallX = ballX;
+    float currentBallY = ballY;
+    float currentBallVy = ballSpeedY;
+    float currentBallVx = ballSpeedX;
+    float currentPaddleY = (float)paddleRightY;
+
+    float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
+    float deltaY = paddleCenterY - currentBallY;
+    
+
+    playerMove(); 
     int action = aiMoveForML();
-    unsigned long currentLogTime = millis();
-    if (currentLogTime - lastLogTime  >= LOG_INTERVAL)
+
+    //Log du lieu khi bong tien gan ben phai va bong da di qua nua san
+    if (now - lastLogTime >= LOG_INTERVAL && currentBallVx > 0 && currentBallX > ((float)SCREEN_WIDTH * 0.5))
     {
-        if(ballSpeedX > 0)
+        if (ballX > 0 && ballX < SCREEN_WIDTH) 
         {
-            logAI(action);
+            Serial.printf("%f,%f,%f,%f,%f, %f, %d\n",
+                    currentBallX,
+                    currentBallY,
+                    currentBallVy,
+                    currentBallVx,
+                    currentPaddleY,
+                    deltaY,
+                    action
+                );
+            lastLogTime = now;
         }
-        lastLogTime = currentLogTime;
     }
+
     ballBehavior();
     scoring();
     
@@ -259,17 +283,44 @@ void gameLogicForAIML()
 
 void gameLogicForHumanML()
 {
+    unsigned long now = millis();
+    
+    //Lay du lieu truoc khi di chuyen de model biet du doan action
+    float currentBallX = ballX;
+    float currentBallY = ballY;
+    float currentBallVy = ballSpeedY;
+    float currentBallVx = ballSpeedX;
+    float currentPaddleY = (float)paddleLeftY;
+
+    float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
+    float deltaY = paddleCenterY - currentBallY;
+    //Tinh delta tu tam cua paddle
     int action = playerMoveForML();
-    unsigned long currentLogTime = millis();
-    aiMoveForML();
-    if (currentLogTime - lastLogTime  >= LOG_INTERVAL)
+
+    //Log du lieu khi da qua thoi gian interval va bong da chay lai nguoi choi
+    if (now - lastLogTime >= LOG_INTERVAL && currentBallVx < 0)
     {
-        if(ballSpeedX < 0)
+        //Filter action 2
+        bool isMoving = action != 2;
+        if ((!isMoving && random(0, 10) == 0) || isMoving) //Luon log khi di chuyen hoac chi log 1/10 khi dung yen
         {
-            logPlayer(action);
+            if (ballX > 0 && ballX < SCREEN_WIDTH) 
+            {
+                    Serial.printf("%f,%f,%f,%f,%f, %f, %d\n",
+                        currentBallX,
+                        currentBallY,
+                        currentBallVy,
+                        currentBallVx,
+                        currentPaddleY,
+                        deltaY,
+                        action
+                    );
+                lastLogTime = now;
+            }
         }
-        lastLogTime = currentLogTime;
     }
+
+    aiMoveForML();
     ballBehavior();
     scoring();
 }

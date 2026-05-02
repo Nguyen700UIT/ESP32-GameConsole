@@ -1,23 +1,41 @@
 import serial
 
+PORT = 'COM5'
+BAUD_RATE = 115200
+FILENAME = "dataHuman.csv"
+
+
 ser = serial.Serial('COM5', 115200)
 
-with open("data.csv", "w") as file:
-    file.write("ballY,vy,vx,paddleY,action\n")
+EXPECTED_COLUMNS = 7
+
+with open(FILENAME, "w") as file:
+    file.write("ballX,ballY,vx,vy,paddleY,deltaY,action\n")
 
     while True:
         try:
-            line = ser.readline().decode('utf-8').strip() #utf-8 format
+            line = ser.readline().decode('utf-8', errors='ignore').strip() #utf-8 format
 
             if not line:  #no log empty line  
                 continue
+            
+            parts = line.split(',')
+            if len(parts) == EXPECTED_COLUMNS:
+                try: 
+                    [float(p) for p in parts] #ep kieu sang float
+                    print(line) #print line for debugging
+                    file.write(line + "\n")
+                    file.flush() #force write from buffer
+                except ValueError:
+                    continue
+            else:
+                continue
 
-            print(line) #print line for debugging
-
-            file.write(line + "\n")
-            file.flush() #force write from buffer
-        
         except KeyboardInterrupt:
             print("Stop logging")
             break
-
+        except Exception as error: 
+            break
+ser.dtr = False # Giai phong reset
+ser.rts = False
+ser.close()

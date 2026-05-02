@@ -257,6 +257,9 @@ void handleInterrupts()
 
   // Prevent stuck
   for (int i = 0; i < kButtonCount; ++i) {
+    // For Reset button, ignore the watchdog while in the menu to prevent noise from killing the long-press timer
+    if (i == 4 && activeGame == nullptr) continue;
+
     if (stablePressed[i] && digitalRead(kButtonPins[i]) == HIGH) {
       stablePressed[i] = false;
       handleButtonRelease(kButtons[i]);
@@ -268,17 +271,21 @@ void handleInterrupts()
 void enterDeepSleep()
 {
   menuTft.fillScreen(TFT_BLACK);
-  menuTft.setCursor(90, 110);
+  menuTft.setCursor(70, 110);
   menuTft.setTextColor(TFT_WHITE);
   menuTft.setTextSize(2);
-  menuTft.println("Sleeping...");
+  menuTft.println("Shutting down...");
+  menuTft.setTextSize(1);
+  menuTft.setCursor(70, 130);
+  menuTft.println("Release Reset button to sleep");
 
-  delay(200);
-
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_13, 0); 
+  // Wait for user to release the button to avoid an immediate wake-up loop
   while(digitalRead(kResetPin)==LOW) delay(10);
-  delay(50);
+  
+  delay(500); // Give user time to see message and mechanical bounce to settle
   digitalWrite(kBL, LOW);
+  // Wake up when the Reset button (GPIO 13) is pressed again (level 0)
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_13, 0); 
   esp_deep_sleep_start();
 }
 
