@@ -11,7 +11,7 @@ bool lost = false;
 int aiSpeed = 3;
 int aiReaction = 14;
 unsigned long lastPredictionTime = 0;
-float currentBallSpeedMagnitude = BALL_BASE_SPEED; // New global variable to track dynamic base speed
+float currentBallSpeedMagnitude = BALL_BASE_SPEED; //global variable to track dynamic base speed
 unsigned long lastLogTime = 0;
 float ballMultiplier = 0;
 
@@ -273,6 +273,7 @@ void resetGame()
     ballX = (SCREEN_WIDTH - BALL_SIZE) / 2;
     ballY = (GAME_HEIGHT - BALL_SIZE) / 2;
     ballSpeedX = BALL_BASE_SPEED;
+    ballMultiplier = 0;
     currentBallSpeedMagnitude = BALL_BASE_SPEED; // Reset to base speed
     ballSpeedY = BALL_BASE_SPEED;
     aiSpeed = 3;
