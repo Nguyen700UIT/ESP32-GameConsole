@@ -93,7 +93,9 @@ u_int16_t smoothRead(const int& PIN)
     {
         sum += analogRead(PIN);
     }
-    return (u_int16_t)(sum / 10);
+    u_int16_t finalVolume = (u_int16_t)(sum / 10);
+    finalVolume = constrain(finalVolume, 0, 40);
+    return finalVolume;
 }
 
 void playRickRoll()

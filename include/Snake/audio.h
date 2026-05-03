@@ -94,7 +94,7 @@
 #define REST      0
 #define PWM_FREQ 2000
 #define PWM_CHANNEL_BUZZER 0
-#define PWM_RESOLUTION 10
+#define PWM_RESOLUTION 8
 #define PWM_CHANNEL_BUZZER_SFX 2
 
 
