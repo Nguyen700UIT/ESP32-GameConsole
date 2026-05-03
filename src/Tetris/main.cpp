@@ -4,7 +4,6 @@
 #include "Tetris/display.h"
 #include "Tetris/tetris.h"
 
-
 namespace tetris {
 void enter()
 {

@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 //Screen definitions
 #define SCREEN_WIDTH 320
@@ -11,6 +12,10 @@
 #define LEFT 27
 #define RIGHT 33
 #define RESET 13
+
+#define BUZZER 32
+#define BUZZER_SFX 21
+#define POT 34
 //Game definitions
 #define SNAKE_BLOCK_SIZE 10
 #define SNAKE_BOARD_NUM_ROW 25
@@ -33,4 +38,7 @@ extern volatile bool reseted;
 extern volatile unsigned long lastInterruptTime[4];
 extern volatile unsigned long lastResetInterruptTime;
 
+extern QueueHandle_t sfxQueue;
+enum sfxEvent {SOUND_EAT, SOUND_SCORE};
+void queueSend(sfxEvent sfx);
 }

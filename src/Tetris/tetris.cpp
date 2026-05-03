@@ -266,8 +266,13 @@ bool delayedFallAndLogic()
     if (now - lastTouchTime > 500)
     {
       lockPiece();
+      queueSend(SOUND_DROP);
       int temp = clearLine();
       prevScore = score;
+      if(temp > 0)
+      {
+        queueSend(SOUND_BREAK);
+      }
       switch (temp)
       {
         case 1:

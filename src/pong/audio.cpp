@@ -1,6 +1,6 @@
-#include "tetris/audio.h"
+#include "pong/audio.h"
 
-namespace tetris {
+namespace pong {
 
 u_int16_t tempoTheme = 150;
 u_int16_t tempoGameOver = 150;
@@ -155,16 +155,7 @@ void playDieSFX()
     vTaskDelay(500 / portTICK_PERIOD_MS);
 }
 
-void playBreakSFX()
-{
-    volume = smoothRead(POT);
-    ledcWriteTone(PWM_CHANNEL_BUZZER_SFX, NOTE_FS6);
-    ledcWrite(PWM_CHANNEL_BUZZER_SFX, volume);
-    vTaskDelay(50 / portTICK_PERIOD_MS);
-    ledcWriteTone(PWM_CHANNEL_BUZZER_SFX, 0);
-}
-
-void playDropSFX()
+void playHitSFX()
 {
     volume = smoothRead(POT);
     ledcWriteTone(PWM_CHANNEL_BUZZER_SFX, NOTE_FS6);
@@ -228,11 +219,11 @@ void audioSFXTask(void *pvParameters)
         {
             switch (eventHappening)
             {
-                case SOUND_BREAK:
-                    playBreakSFX();
+                case SOUND_HIT:
+                    playHitSFX();
                     break;
-                case SOUND_DROP:
-                    playDropSFX();
+                case SOUND_SCORE:
+                    playScoreSFX();
                     break;
             }
         }

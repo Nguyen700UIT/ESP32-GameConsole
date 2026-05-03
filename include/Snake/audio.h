@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include "tetris/config.h"
+#include "snake/config.h"
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -99,7 +99,7 @@
 
 
 
-namespace tetris {
+namespace snake {
 
 extern u_int16_t tempoTheme;
 extern u_int16_t tempoGameOver;
@@ -114,10 +114,10 @@ void shutdownAudio();
 u_int16_t smoothRead(const int& PIN);
 void audioMusicTask(void *pvParameters);
 void audioSFXTask(void *pvParameters);
-void playRickRoll();
+void playRickRoll(); //theme music
 void playGameOverMusic();
 void playDieSFX();
-void playBreakSFX();
-void playDropSFX();
+void playEatSFX();
+void playScoreSFX();
 
 }

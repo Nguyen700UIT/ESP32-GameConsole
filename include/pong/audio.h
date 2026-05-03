@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include "tetris/config.h"
+#include "pong/config.h"
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -99,7 +99,7 @@
 
 
 
-namespace tetris {
+namespace pong {
 
 extern u_int16_t tempoTheme;
 extern u_int16_t tempoGameOver;
@@ -117,7 +117,7 @@ void audioSFXTask(void *pvParameters);
 void playRickRoll();
 void playGameOverMusic();
 void playDieSFX();
-void playBreakSFX();
-void playDropSFX();
+void playHitSFX();
+void playScoreSFX();
 
 }

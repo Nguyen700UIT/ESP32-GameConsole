@@ -1,6 +1,6 @@
-#include "tetris/audio.h"
+#include "snake/audio.h"
 
-namespace tetris {
+namespace snake {
 
 u_int16_t tempoTheme = 150;
 u_int16_t tempoGameOver = 150;
@@ -103,7 +103,7 @@ void playRickRoll()
 
     for (int currNote = 0; currNote < noteAmountTheme * 2; currNote += 2)
     {
-        if (gameOverFlag) return;
+        if (gameOver) return;
         int divider = melodyTheme[currNote + 1];
         int noteDuration = 0;
         if (divider > 0) noteDuration = wholeNoteTheme / divider;
@@ -125,7 +125,7 @@ void playGameOverMusic()
 
     for (int currNote = 0; currNote < noteAmountOver * 2; currNote += 2)
     {
-        if (!gameOverFlag) return;
+        if (!gameOver) return;
         int divider = melodyGameOver[currNote + 1];
         int noteDuration = 0;
         if (divider > 0) noteDuration = wholeNoteOver / divider;
@@ -155,16 +155,7 @@ void playDieSFX()
     vTaskDelay(500 / portTICK_PERIOD_MS);
 }
 
-void playBreakSFX()
-{
-    volume = smoothRead(POT);
-    ledcWriteTone(PWM_CHANNEL_BUZZER_SFX, NOTE_FS6);
-    ledcWrite(PWM_CHANNEL_BUZZER_SFX, volume);
-    vTaskDelay(50 / portTICK_PERIOD_MS);
-    ledcWriteTone(PWM_CHANNEL_BUZZER_SFX, 0);
-}
-
-void playDropSFX()
+void playEatSFX()
 {
     volume = smoothRead(POT);
     ledcWriteTone(PWM_CHANNEL_BUZZER_SFX, NOTE_FS6);
@@ -192,7 +183,7 @@ void audioMusicTask(void *pvParameters)
 
     while (true)
     {
-        if (!gameOverFlag)
+        if (!gameOver)
         {
             playedSFXOnce = false;
             playRickRoll();
@@ -228,11 +219,11 @@ void audioSFXTask(void *pvParameters)
         {
             switch (eventHappening)
             {
-                case SOUND_BREAK:
-                    playBreakSFX();
+                case SOUND_EAT:
+                    playEatSFX();
                     break;
-                case SOUND_DROP:
-                    playDropSFX();
+                case SOUND_SCORE:
+                    playScoreSFX();
                     break;
             }
         }

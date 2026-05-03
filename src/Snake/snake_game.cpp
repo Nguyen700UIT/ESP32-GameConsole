@@ -197,6 +197,7 @@ bool eat()
         tft_snake.fillRect(bait.x, bait.y, SNAKE_BLOCK_SIZE, SNAKE_BLOCK_SIZE, GAME_GREEN); //Delete bait
         nTail++;
         initBait();
+        queueSend(SOUND_EAT);
         return true;
     }
     return false;

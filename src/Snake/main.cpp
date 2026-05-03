@@ -2,6 +2,7 @@
 #include "Snake/config.h"
 #include "Snake/display.h"
 #include "Snake/snake_game.h"
+#include "Snake/audio.h"
 #include <console/storage.h>
 
 
@@ -11,6 +12,7 @@ void enter()
 {
     prefs.begin("scores", false); //Not read only
     bestScore = prefs.getInt("snake", 0); //Default = 0, Read from flash
+    initAudio();
     initDisplay();
     gameReset();
     isUp = false;
@@ -18,6 +20,7 @@ void enter()
     isLeft = false;
     isRight = false;
     reseted = false;
+    
 }
 
 void tick()
@@ -69,6 +72,7 @@ void tick()
 
 void exit()
 {
+    shutdownAudio();
     prefs.putInt("snake", bestScore); //Store in flash
     prefs.end();
     tft_snake.fillScreen(TFT_BLACK);

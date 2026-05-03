@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 //Screen definitions
 #define SCREEN_WIDTH tft.width()
@@ -11,6 +12,8 @@
 #define RIGHT 33
 #define RESET 13
 #define BUZZER 32
+#define BUZZER_SFX 21
+#define POT 34
 #define BUTTON_DEBOUNCE 100
 //Game definitions
 #define BLOCK_SIZE 20
@@ -19,8 +22,6 @@
 #define TETRIS_BOARD_HEIGHT 64
 #define UI_BOARD_WIDTH 64
 #define UI_BOARD_HEIGHT 64
-
-
 
 namespace tetris {
 
@@ -32,5 +33,11 @@ extern volatile bool reseted;
 extern volatile unsigned long lastInterruptTime[4];
 extern volatile unsigned long lastResetInterruptTime;
 extern volatile bool gameOverFlag;
+
+extern QueueHandle_t sfxQueue;
+
+enum sfxEvent {SOUND_BREAK, SOUND_DROP};
+
+void queueSend(sfxEvent sfx);
 
 }

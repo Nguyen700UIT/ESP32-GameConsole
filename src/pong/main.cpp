@@ -3,11 +3,13 @@
 #include "pong/display.h"
 #include "pong/pong.h"
 #include "pong/ai_interference.h"
+#include "pong/audio.h"
 
 namespace pong {
 
 void enter()
 {
+    initAudio();
     initDisplay();
     initAI();
     resetGame();
@@ -44,6 +46,7 @@ void exit()
         canvas.deleteSprite();
         canvasReady = false;
     }
+    shutdownAudio();
     releaseAI();
     tft.fillScreen(TFT_BLACK);
     isUp = false;

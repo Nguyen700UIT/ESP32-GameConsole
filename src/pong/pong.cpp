@@ -188,6 +188,7 @@ void ballBehavior()
     {
         if (ballY + BALL_SIZE >= paddleLeftY && ballY <= paddleLeftY + PADDLE_HEIGHT) //Speed is max when hit at top or bottom
         {
+            queueSend(SOUND_HIT);
             ballX = PADDLE_WIDTH; // Prevent ball from going behind paddle and triggering a score
             float relative = (ballY + (BALL_SIZE / 2.0) - (paddleLeftY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0); // negative top half, positive bottom half
             ballSpeedY = constrain(relative, -1.0, 1.0) * BALL_MAX_SPEED; // Use BALL_MAX_SPEED for vertical component
@@ -209,6 +210,7 @@ void ballBehavior()
     {
         if (ballY + BALL_SIZE >= paddleRightY && ballY <= paddleRightY + PADDLE_HEIGHT) //Speed is max when hit at top or bottom
         {
+            queueSend(SOUND_HIT);
             ballX = SCREEN_WIDTH - PADDLE_WIDTH - BALL_SIZE; // Prevent ball from getting stuck
             float relative = (ballY + (BALL_SIZE / 2.0) - (paddleRightY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
             ballSpeedY = constrain(relative, -1.0, 1.0) * BALL_MAX_SPEED; // Use BALL_MAX_SPEED for vertical component
