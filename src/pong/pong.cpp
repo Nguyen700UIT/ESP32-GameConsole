@@ -1,7 +1,9 @@
 #include "pong/pong.h"
+#include "pong/ai_interference.h"
 
 
 namespace pong {
+
 
 int playerScore = 0;
 int aiScore = 0;
@@ -12,6 +14,9 @@ unsigned long lastPredictionTime = 0;
 float currentBallSpeedMagnitude = BALL_BASE_SPEED; // New global variable to track dynamic base speed
 unsigned long lastLogTime = 0;
 float ballMultiplier = 0;
+
+
+
 
 void playerMove()
 {
@@ -119,6 +124,32 @@ int aiMoveForML()
     paddleRightY = constrain(paddleRightY, 0, GAME_HEIGHT - PADDLE_HEIGHT);
 
     return action;
+}
+
+void aiMoveUsingML()
+{
+    static int lastAction = 2; // Default to 'Stay'
+    unsigned long now = millis();
+
+    // Chi predict sau khoang thoi giang interval
+    if (now - lastPredictionTime >= AI_PREDICTION_INTERVAL)
+    {
+        float currentPaddleY = (float)paddleRightY;
+        float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
+        float deltaY = paddleCenterY - ballY;
+
+        lastAction = predict(ballX, ballY, ballSpeedY, ballSpeedX, currentPaddleY, deltaY);
+        lastPredictionTime = now;
+    }
+
+    //Thuc hien hanh dong cuoi cung
+    if (lastAction == 0) { // UP
+        paddleRightY -= aiSpeed;
+    } else if (lastAction == 1) { // DOWN
+        paddleRightY += aiSpeed;
+    }
+
+    paddleRightY = constrain(paddleRightY, 0, GAME_HEIGHT - PADDLE_HEIGHT);
 }
 
 void ballBehavior()
@@ -265,25 +296,25 @@ void gameLogicForAIML()
     
 
     playerMove(); 
-    int action = aiMoveForML(); //Action is output of neural network
+    aiMoveUsingML(); // Use the model to drive the paddle
 
-    //Log du lieu khi bong tien gan ben phai va bong da di qua nua san
-    if (now - lastLogTime >= LOG_INTERVAL && currentBallVx > 0 && currentBallX > ((float)SCREEN_WIDTH * 0.5))
-    {
-        if (ballX > 0 && ballX < SCREEN_WIDTH) 
-        {
-            Serial.printf("%f,%f,%f,%f,%f, %f, %d\n",
-                    currentBallX,
-                    currentBallY,
-                    currentBallVy,
-                    currentBallVx,
-                    currentPaddleY,
-                    deltaY,
-                    action
-                );
-            lastLogTime = now;
-        }
-    }
+    // //Log du lieu khi bong tien gan ben phai va bong da di qua nua san
+    // if (now - lastLogTime >= LOG_INTERVAL && currentBallVx > 0 && currentBallX > ((float)SCREEN_WIDTH * 0.5))
+    // {
+    //     if (ballX > 0 && ballX < SCREEN_WIDTH) 
+    //     {
+    //         Serial.printf("%f,%f,%f,%f,%f, %f, %d\n",
+    //                 currentBallX,
+    //                 currentBallY,
+    //                 currentBallVy,
+    //                 currentBallVx,
+    //                 currentPaddleY,
+    //                 deltaY, 
+    //                 2       
+    //             );
+    //         lastLogTime = now;
+    //     }
+    // }
 
     ballBehavior();
     scoring();

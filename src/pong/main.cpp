@@ -2,12 +2,14 @@
 #include "pong/config.h"
 #include "pong/display.h"
 #include "pong/pong.h"
+#include "pong/ai_interference.h"
 
 namespace pong {
 
 void enter()
 {
     initDisplay();
+    initAI();
     resetGame();
     render();
     isUp = false;
@@ -42,6 +44,7 @@ void exit()
         canvas.deleteSprite();
         canvasReady = false;
     }
+    releaseAI();
     tft.fillScreen(TFT_BLACK);
     isUp = false;
     isDown = false;

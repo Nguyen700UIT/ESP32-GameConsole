@@ -1,0 +1,106 @@
+#include "pong/ai_interference.h"
+
+namespace pong {
+    alignas(16) uint8_t tensorArena[TENSOR_ARENA_SIZE];
+    const tflite::Model* model = nullptr;
+    tflite::MicroMutableOpResolver<5> resolver;
+    tflite::MicroInterpreter* interpreter = nullptr;
+    TfLiteTensor* input = nullptr;
+    TfLiteTensor* output = nullptr;
+
+    
+    void initAI() 
+    {
+        if (interpreter != nullptr) return;
+
+        //Initialize global model and resolver only once
+        model = tflite::GetModel(pong_model_int8_tflite);
+        static bool resolver_ready = false;
+        if (!resolver_ready) {
+            resolver.AddFullyConnected();
+            resolver.AddRelu();
+            resolver.AddSoftmax();
+            resolver_ready = true;
+        }
+        
+        //Interpreter
+        static tflite::MicroErrorReporter error_reporter;
+        static tflite::MicroInterpreter static_interpreter(
+            model, 
+            resolver, tensorArena, TENSOR_ARENA_SIZE, &error_reporter);
+        
+        interpreter = &static_interpreter;
+        
+        ///Allocate tensors for interpreter
+        if (interpreter->AllocateTensors() != kTfLiteOk) 
+        {
+            interpreter = nullptr;
+            return;
+        }
+        
+        input = interpreter->input(0);
+        output = interpreter->output(0);
+    }
+
+    void releaseAI()
+    {
+        interpreter = nullptr;
+        input = nullptr;
+        output = nullptr;
+        model = nullptr;
+    }
+
+    inline float clamp(float x)
+    {
+        if (x > 1) return 1;
+        if (x < 0) return 0;
+        return x;
+    }
+
+
+    void normalize(float &ballX, float &ballY, float &vy, float &vx, float &paddleY, float &deltaY)
+    {
+        ballX = (ballX - MIN_BALL_X) / (MAX_BALL_X - MIN_BALL_X); 
+        ballY = (ballY - MIN_BALL_Y) / (MAX_BALL_Y - MIN_BALL_Y);
+        vy = (vy - MIN_VY) / (MAX_VY - MIN_VY);
+        vx = (vx - MIN_VX) / (MAX_VX - MIN_VX);
+        paddleY = (paddleY - MIN_PADDLE_Y) / (MAX_PADDLE_Y - MIN_PADDLE_Y);
+        deltaY = (deltaY - MIN_DELTA_Y) / (MAX_DELTA_Y - MIN_DELTA_Y);
+
+        ballX = clamp(ballX);
+        ballY = clamp(ballY);
+        vy = clamp(vy);
+        vx = clamp(vx);
+        paddleY = clamp(paddleY);
+        deltaY = clamp(deltaY);
+    }
+
+    int predict(float ballX, float ballY, float vy, float vx, float paddleY, float deltaY)
+    {
+        // Normalize
+        normalize(ballX, ballY, vy, vx, paddleY, deltaY);
+
+        
+        if (!input || !interpreter) return 2; // Default stay 
+
+        //Quantize
+        //quantized_value = (float_value / scale) + zero_point
+        float features[6] = {ballX, ballY, vy, vx, paddleY, deltaY};
+        for (int i = 0; i < 6; i++) {
+            input->data.int8[i] = (int8_t)(features[i] / input->params.scale + input->params.zero_point); //Nap input vao neural network
+        }
+
+        // Run inference
+        if (interpreter->Invoke() != kTfLiteOk) return 2;
+
+        //Lay output la gia tri du doan
+        int8_t* results = output->data.int8;
+        int action = 0;
+        int8_t max_val = results[0];
+
+        if (results[1] > max_val) { max_val = results[1]; action = 1; }
+        if (results[2] > max_val) { action = 2; }
+
+        return action;
+    }
+}
