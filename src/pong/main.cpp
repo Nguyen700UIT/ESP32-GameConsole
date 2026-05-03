@@ -19,7 +19,7 @@ void tick()
 {
 //     if (!gameOverFlag)
 //     {
-        gameLogicForHumanML();
+        gameLogicForAIML();
         render();
     // }
     // else
@@ -68,6 +68,7 @@ void onButtonPressed(console::Button button)
             reseted = true;
             break;
         case console::Button::Left:
+            break;
         case console::Button::Right:
             break;
     }

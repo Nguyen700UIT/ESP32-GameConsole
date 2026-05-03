@@ -233,7 +233,7 @@ void handleInterrupts()
   }
 
   ButtonEvent event;
-  while (xQueueReceive(buttonEventQueue, &event, 0) == pdPASS)
+  while (xQueueReceive(buttonEventQueue, &event, 0) == pdPASS) //Take button presses from queue
   {
     if (event.buttonIdx >= kButtonCount)
     {

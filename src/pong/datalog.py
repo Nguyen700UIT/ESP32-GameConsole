@@ -1,8 +1,8 @@
 import serial
-
+import sys
 PORT = 'COM5'
 BAUD_RATE = 115200
-FILENAME = "dataHuman.csv"
+FILENAME = sys.argv[1]
 
 
 ser = serial.Serial('COM5', 115200, timeout=1)

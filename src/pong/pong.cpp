@@ -95,10 +95,10 @@ int aiMoveForML()
     int paddleCenter = paddleRightY + PADDLE_HEIGHT / 2;
     int action = 2; // 0=up, 1=down, 2=stay
 
-    // chỉ xử lý khi bóng đang đi về phía AI
+    //Move when ball is on the AI side
     if (ballSpeedX > 0)
     {
-        int threshold = 2; // vùng chết để tránh rung
+        int threshold = 3; 
 
         if (ballY > paddleCenter + threshold)
         {
@@ -265,7 +265,7 @@ void gameLogicForAIML()
     
 
     playerMove(); 
-    int action = aiMoveForML();
+    int action = aiMoveForML(); //Action is output of neural network
 
     //Log du lieu khi bong tien gan ben phai va bong da di qua nua san
     if (now - lastLogTime >= LOG_INTERVAL && currentBallVx > 0 && currentBallX > ((float)SCREEN_WIDTH * 0.5))
@@ -304,7 +304,7 @@ void gameLogicForHumanML()
     float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
     float deltaY = paddleCenterY - currentBallY;
     //Tinh delta tu tam cua paddle
-    int action = playerMoveForML();
+    int action = playerMoveForML(); //Action is output of neural network
 
     //Log du lieu khi da qua thoi gian interval va bong da chay lai nguoi choi
     if (now - lastLogTime >= LOG_INTERVAL && currentBallVx < 0)
