@@ -53,16 +53,16 @@ void onButtonPressed(console::Button button)
     switch (button)
     {
         case console::Button::Up:
-            if (!gameOverFlag)
-            {
+            // if (!gameOverFlag)
+            // {
                 isUp = true;
-            }
+            // }
             break;
         case console::Button::Down:
-            if (!gameOverFlag)
-            {
+            // if (!gameOverFlag)
+            // {
                 isDown = true;
-            }
+            // }
             break;
         case console::Button::Reset:
             reseted = true;

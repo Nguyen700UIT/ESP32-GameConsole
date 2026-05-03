@@ -5,15 +5,14 @@ BAUD_RATE = 115200
 FILENAME = "dataHuman.csv"
 
 
-ser = serial.Serial('COM5', 115200)
+ser = serial.Serial('COM5', 115200, timeout=1)
 
 EXPECTED_COLUMNS = 7
-
-with open(FILENAME, "w") as file:
-    file.write("ballX,ballY,vx,vy,paddleY,deltaY,action\n")
-
-    while True:
-        try:
+try:
+    with open(FILENAME, "w") as file:
+        file.write("ballX,ballY,vy,vx,paddleY,deltaY,action\n")
+      
+        while True:
             line = ser.readline().decode('utf-8', errors='ignore').strip() #utf-8 format
 
             if not line:  #no log empty line  
@@ -31,11 +30,12 @@ with open(FILENAME, "w") as file:
             else:
                 continue
 
-        except KeyboardInterrupt:
-            print("Stop logging")
-            break
-        except Exception as error: 
-            break
-ser.dtr = False # Giai phong reset
-ser.rts = False
-ser.close()
+except KeyboardInterrupt:
+    print("Stop logging")
+
+except Exception as error: 
+    print(error)
+finally:
+    ser.dtr = False # Giai phong reset
+    ser.rts = False
+    ser.close()

@@ -9,7 +9,9 @@ bool lost = false;
 int aiSpeed = 3;
 int aiReaction = 14;
 unsigned long lastPredictionTime = 0;
+float currentBallSpeedMagnitude = BALL_BASE_SPEED; // New global variable to track dynamic base speed
 unsigned long lastLogTime = 0;
+float ballMultiplier = 0;
 
 void playerMove()
 {
@@ -121,6 +123,11 @@ int aiMoveForML()
 
 void ballBehavior()
 {
+    ballSpeedX += ballSpeedX*ballMultiplier;
+    ballSpeedY += ballSpeedY*ballMultiplier;
+    ballSpeedX = constrain(ballSpeedX, -BALL_MAX_SPEED, BALL_MAX_SPEED);
+    ballSpeedY = constrain(ballSpeedY, -BALL_MAX_SPEED, BALL_MAX_SPEED);
+
     ballX += ballSpeedX;
     ballY += ballSpeedY;
 
@@ -148,40 +155,42 @@ void ballBehavior()
     // Left Paddle collision - Only check if ball is moving left
     if (ballSpeedX < 0 && ballX <= PADDLE_WIDTH)
     {
-        if (ballY + BALL_SIZE >= paddleLeftY && ballY <= paddleLeftY + PADDLE_HEIGHT)
+        if (ballY + BALL_SIZE >= paddleLeftY && ballY <= paddleLeftY + PADDLE_HEIGHT) //Speed is max when hit at top or bottom
         {
             ballX = PADDLE_WIDTH; // Prevent ball from going behind paddle and triggering a score
-            float relative = (ballY + (BALL_SIZE / 2.0) - (paddleLeftY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
+            float relative = (ballY + (BALL_SIZE / 2.0) - (paddleLeftY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0); // negative top half, positive bottom half
             ballSpeedY = constrain(relative, -1.0, 1.0) * BALL_MAX_SPEED; // Use BALL_MAX_SPEED for vertical component
             //minimum horizontal speed after paddle hit
-            if (abs(ballSpeedX) < MIN_BALL_SPEED_X) {
+            if (abs(ballSpeedX) < MIN_BALL_SPEED_X) 
+            {
                 ballSpeedX = (ballSpeedX > 0) ? MIN_BALL_SPEED_X : -MIN_BALL_SPEED_X;
             }
             ballSpeedX = abs(ballSpeedX); 
 
             float speed = sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
-            ballSpeedX = (ballSpeedX / speed) * BALL_BASE_SPEED;
-            ballSpeedY = (ballSpeedY / speed) * BALL_BASE_SPEED;
+            ballSpeedX = (ballSpeedX / speed) * currentBallSpeedMagnitude; // Use dynamic base speed
+            ballSpeedY = (ballSpeedY / speed) * currentBallSpeedMagnitude; // Use dynamic base speed
         }
     }
 
     // Right Paddle collision - Only check if ball is moving right
     if (ballSpeedX > 0 && ballX >= SCREEN_WIDTH - PADDLE_WIDTH - BALL_SIZE)
     {
-        if (ballY + BALL_SIZE >= paddleRightY && ballY <= paddleRightY + PADDLE_HEIGHT)
+        if (ballY + BALL_SIZE >= paddleRightY && ballY <= paddleRightY + PADDLE_HEIGHT) //Speed is max when hit at top or bottom
         {
             ballX = SCREEN_WIDTH - PADDLE_WIDTH - BALL_SIZE; // Prevent ball from getting stuck
             float relative = (ballY + (BALL_SIZE / 2.0) - (paddleRightY + PADDLE_HEIGHT / 2.0)) / (PADDLE_HEIGHT / 2.0);
             ballSpeedY = constrain(relative, -1.0, 1.0) * BALL_MAX_SPEED; // Use BALL_MAX_SPEED for vertical component
             //minimum horizontal speed after paddle hit
-            if (abs(ballSpeedX) < MIN_BALL_SPEED_X) {
+            if (abs(ballSpeedX) < MIN_BALL_SPEED_X) 
+            {
                 ballSpeedX = (ballSpeedX > 0) ? MIN_BALL_SPEED_X : -MIN_BALL_SPEED_X;
             }
             ballSpeedX = -abs(ballSpeedX);
 
             float speed = sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
-            ballSpeedX = (ballSpeedX / speed) * BALL_BASE_SPEED;
-            ballSpeedY = (ballSpeedY / speed) * BALL_BASE_SPEED;
+            ballSpeedX = (ballSpeedX / speed) * currentBallSpeedMagnitude; // Use dynamic base speed
+            ballSpeedY = (ballSpeedY / speed) * currentBallSpeedMagnitude; // Use dynamic base speed
         }
     }
 }
@@ -210,16 +219,15 @@ void scoring()
 
     if (playerScored)
     {
-        if (playerScore > 0 && playerScore % 5 == 0)
+        if (playerScore > 0 && playerScore % 3 == 0)
         {
-            ballSpeedX *= 1.2;
-            ballSpeedY *= 1.2;
-            ballSpeedX = constrain(ballSpeedX, -BALL_MAX_SPEED, BALL_MAX_SPEED);
-            ballSpeedY = constrain(ballSpeedY, -BALL_MAX_SPEED, BALL_MAX_SPEED);
+            ballMultiplier += 0.01;
+            currentBallSpeedMagnitude = BALL_BASE_SPEED * (1.0 + ballMultiplier); // Increase the target speed
+            aiSpeed++;
         }
 
         aiReaction--;
-        aiSpeed++;
+
     }
 }
 
@@ -234,6 +242,7 @@ void resetGame()
     ballX = (SCREEN_WIDTH - BALL_SIZE) / 2;
     ballY = (GAME_HEIGHT - BALL_SIZE) / 2;
     ballSpeedX = BALL_BASE_SPEED;
+    currentBallSpeedMagnitude = BALL_BASE_SPEED; // Reset to base speed
     ballSpeedY = BALL_BASE_SPEED;
     aiSpeed = 3;
     aiReaction = 14;
@@ -302,7 +311,7 @@ void gameLogicForHumanML()
     {
         //Filter action 2
         bool isMoving = action != 2;
-        if ((!isMoving && random(0, 10) == 0) || isMoving) //Luon log khi di chuyen hoac chi log 1/10 khi dung yen
+        if ((!isMoving && random(0, 10) <= 1) || isMoving) //Luon log khi di chuyen hoac chi log 2/10 khi dung yen
         {
             if (ballX > 0 && ballX < SCREEN_WIDTH) 
             {
