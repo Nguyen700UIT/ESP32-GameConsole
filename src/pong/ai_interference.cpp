@@ -14,7 +14,7 @@ namespace pong {
         if (interpreter != nullptr) return;
 
         //Initialize global model and resolver only once
-        model = tflite::GetModel(pong_model_int8_tflite);
+        model = tflite::GetModel(pong_modelAdvanced_int8_tflite);
         static bool resolver_ready = false;
         if (!resolver_ready) {
             resolver.AddFullyConnected();
@@ -87,7 +87,11 @@ namespace pong {
         //quantized_value = (float_value / scale) + zero_point
         float features[6] = {ballX, ballY, vy, vx, paddleY, deltaY};
         for (int i = 0; i < 6; i++) {
-            input->data.int8[i] = (int8_t)(features[i] / input->params.scale + input->params.zero_point); //Nap input vao neural network
+            int32_t q = (int32_t)(features[i] / input->params.scale + input->params.zero_point); 
+
+            if (q > 127) q = 127;
+            if (q < -128) q = -128;
+            input->data.int8[i] = (int8_t)q; //Nap input vao neural network
         }
 
         // Run inference

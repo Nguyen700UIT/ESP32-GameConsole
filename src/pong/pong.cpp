@@ -300,7 +300,7 @@ void gameLogicForAIML()
 
     playerMove(); 
     aiMoveUsingML(); // Use the model to drive the paddle
-
+    Serial.println(interpreter->arena_used_bytes());
     // //Log du lieu khi bong tien gan ben phai va bong da di qua nua san
     // if (now - lastLogTime >= LOG_INTERVAL && currentBallVx > 0 && currentBallX > ((float)SCREEN_WIDTH * 0.5))
     // {

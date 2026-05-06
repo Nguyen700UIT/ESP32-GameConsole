@@ -1,12 +1,13 @@
 #pragma once
 #include "pong/model.h"
+#include "pong/modelAdvanced.h"
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-#define TENSOR_ARENA_SIZE 4096 //4KB RAM
+#define TENSOR_ARENA_SIZE 8096 //8KB RAM
 #define MAX_BALL_X 319.96
 #define MIN_BALL_X 0.53
 #define MAX_BALL_Y 192.00
