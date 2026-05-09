@@ -4,8 +4,8 @@
 #include "pong/config.h"
 
 #define BALL_SIZE 8
-#define BALL_MAX_SPEED 6.0
-#define BALL_BASE_SPEED 4.0
+#define BALL_MAX_SPEED 7.0
+#define BALL_BASE_SPEED 5.0
 #define MIN_BALL_SPEED_X (BALL_BASE_SPEED / 2.0)
 
 namespace pong {

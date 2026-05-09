@@ -6,7 +6,7 @@
 
 #define PADDLE_WIDTH 10
 #define PADDLE_HEIGHT 30
-#define PADDLE_SPEED 6
+#define PADDLE_SPEED 4
 
 namespace pong {
 
