@@ -7,10 +7,10 @@ FILENAME = sys.argv[1]
 
 ser = serial.Serial('COM5', 115200, timeout=1)
 
-EXPECTED_COLUMNS = 7
+EXPECTED_COLUMNS = 8
 try:
     with open(FILENAME, "w") as file:
-        file.write("ballX,ballY,vy,vx,paddleY,deltaY,action\n")
+        file.write("ballX,ballY,vy,vx,paddleY,distance,deltaY,action\n")
       
         while True:
             line = ser.readline().decode('utf-8', errors='ignore').strip() #utf-8 format
@@ -21,7 +21,7 @@ try:
             parts = line.split(',')
             if len(parts) == EXPECTED_COLUMNS:
                 try: 
-                    [float(p) for p in parts] #ep kieu sang float
+                    [float(p) for p in parts] #ep kieu sang float de vao except
                     print(line) #print line for debugging
                     file.write(line + "\n")
                     file.flush() #force write from buffer

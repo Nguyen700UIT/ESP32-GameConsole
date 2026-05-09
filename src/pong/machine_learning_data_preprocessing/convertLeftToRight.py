@@ -10,5 +10,6 @@ df = pandas.read_csv(sys.argv[1])
 
 df['ballX'] = SCREEN_WIDTH - df['ballX']
 df['vx'] = -df['vx']
+df['distance'] = (((SCREEN_WIDTH - 10) - df['ballX']) ** 2 + (df['paddleY'] - df['ballY']) ** 2) ** 0.5
 
 df.to_csv(sys.argv[2], index=False)

@@ -5,7 +5,7 @@ from sklearn.preprocessing import MinMaxScaler
 df = pandas.read_csv(sys.argv[1])
 
 #action output so no scale
-feature_to_scale = ['ballX', 'ballY', 'vy', 'vx', 'paddleY', 'deltaY']
+feature_to_scale = ['ballX', 'ballY', 'vy', 'vx', 'paddleY', 'distance', 'deltaY']
 
 scaler = MinMaxScaler()
 #transform to 0 to 1 data 
