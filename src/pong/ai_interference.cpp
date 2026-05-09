@@ -1,18 +1,39 @@
 #include "pong/ai_interference.h"
 
+#include <cstdint>
+#include <cstdlib>
+
 
 namespace pong {
-    alignas(16) uint8_t tensorArena[TENSOR_ARENA_SIZE];
+    uint8_t* tensorArena = nullptr;
     const tflite::Model* model = nullptr;
     tflite::MicroMutableOpResolver<5> resolver;
     tflite::MicroInterpreter* interpreter = nullptr;
     TfLiteTensor* input = nullptr;
     TfLiteTensor* output = nullptr;
 
+    namespace {
+        uint8_t* tensorArenaStorage = nullptr;
+
+        bool ensureTensorArena()
+        {
+            if (tensorArena != nullptr) return true;
+            //Prevent misalign address causing tensor arena not allocated as desired
+            tensorArenaStorage = static_cast<uint8_t*>(malloc(TENSOR_ARENA_SIZE + 16)); //Prevent losing bytes for allocation
+            if (tensorArenaStorage == nullptr) return false;
+            //Align 16 bytes by plus 15 to move to next multiplier of 16 and set 4 low bit to 0 so address is always divisible by 16
+            uintptr_t alignedAddress = (reinterpret_cast<uintptr_t>(tensorArenaStorage) + 15) & ~static_cast<uintptr_t>(15);
+            //Align address % 16 = 0 cast address to pointer to make it adress
+            tensorArena = reinterpret_cast<uint8_t*>(alignedAddress);
+            return true;
+        }
+    }
+
     
     void initAI() 
     {
         if (interpreter != nullptr) return;
+        if (!ensureTensorArena()) return;
 
         //Initialize global model and resolver only once
         model = tflite::GetModel(pong_modelHeavy_int8_tflite);
@@ -26,15 +47,21 @@ namespace pong {
         
         //Interpreter
         static tflite::MicroErrorReporter error_reporter;
-        static tflite::MicroInterpreter static_interpreter(
-            model, 
-            resolver, tensorArena, TENSOR_ARENA_SIZE, &error_reporter);
-        
-        interpreter = &static_interpreter;
+
+        interpreter = new tflite::MicroInterpreter
+        (
+            model,
+            resolver,
+            tensorArena,
+            TENSOR_ARENA_SIZE,
+            &error_reporter
+        );
+
         
         ///Allocate tensors for interpreter
         if (interpreter->AllocateTensors() != kTfLiteOk) 
         {
+            delete interpreter;
             interpreter = nullptr;
             return;
         }
@@ -45,16 +72,29 @@ namespace pong {
 
     void releaseAI()
     {
+        if (interpreter != nullptr)
+        {
+        delete interpreter;
         interpreter = nullptr;
+        }
         input = nullptr;
         output = nullptr;
         model = nullptr;
+
+        if (tensorArenaStorage != nullptr)
+        {
+        free(tensorArenaStorage);
+
+        tensorArenaStorage = nullptr;
+        tensorArena = nullptr;
+        }
     }
 
     inline float clamp(float x)
     {
         if (x > 1) return 1;
         if (x < 0) return 0;
+
         return x;
     }
 
