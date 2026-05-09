@@ -21,22 +21,22 @@ void enter()
 
 void tick()
 {
-    // if (!gameOverFlag)
-    // {
-        gameLogicForHumanML();
+    if (!gameOverFlag)
+    {
+        gameLogicForAIML();
         render();
-    // }
-    // else
-    // {
-    //     drawGameOver();
-    //     if (reseted)
-    //     {
-    //         tft.fillScreen(TFT_BLACK);
-    //         resetGame();
-    //         render();
-    //         reseted = false;
-    //     }
-    // }
+    }
+    else
+    {
+        drawGameOver();
+        if (reseted)
+        {
+            tft.fillScreen(TFT_BLACK);
+            resetGame();
+            render();
+            reseted = false;
+        }
+    }
 }
 
 void exit()
@@ -59,16 +59,16 @@ void onButtonPressed(console::Button button)
     switch (button)
     {
         case console::Button::Up:
-            // if (!gameOverFlag)
-            // {
+            if (!gameOverFlag)
+            {
                 isUp = true;
-            // }
+            }
             break;
         case console::Button::Down:
-            // if (!gameOverFlag)
-            // {
+            if (!gameOverFlag)
+            {
                 isDown = true;
-            // }
+            }
             break;
         case console::Button::Reset:
             reseted = true;
