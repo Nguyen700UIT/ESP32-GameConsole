@@ -8,7 +8,7 @@ namespace pong {
 int playerScore = 0;
 int aiScore = 0;
 bool lost = false;
-int aiSpeed = 3;
+int aiSpeed = 2;
 int aiReaction = 14;
 unsigned long lastPredictionTime = 0;
 float currentBallSpeedMagnitude = BALL_BASE_SPEED; //global variable to track dynamic base speed
@@ -136,9 +136,12 @@ void aiMoveUsingML()
     {
         float currentPaddleY = (float)paddleRightY;
         float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
+        float aiPaddleX = SCREEN_WIDTH - PADDLE_WIDTH;
+        float distance = sqrt((aiPaddleX - ballX) * (aiPaddleX - ballX) +
+                            (currentPaddleY - ballY) * (currentPaddleY - ballY));
         float deltaY = paddleCenterY - ballY;
 
-        lastAction = predict(ballX, ballY, ballSpeedY, ballSpeedX, currentPaddleY, deltaY);
+        lastAction = predict(ballX, ballY, ballSpeedY, ballSpeedX, currentPaddleY, distance, deltaY);
         lastPredictionTime = now;
     }
 
@@ -293,6 +296,9 @@ void gameLogicForAIML()
     float currentBallVy = ballSpeedY;
     float currentBallVx = ballSpeedX;
     float currentPaddleY = (float)paddleRightY;
+    float aiPaddleX = SCREEN_WIDTH - PADDLE_WIDTH;
+    float distance = sqrt((aiPaddleX - currentBallX) * (aiPaddleX - currentBallX) +
+                            (currentPaddleY - currentBallY) * (currentPaddleY - currentBallY));
 
     float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
     float deltaY = paddleCenterY - currentBallY;
@@ -300,7 +306,9 @@ void gameLogicForAIML()
 
     playerMove(); 
     aiMoveUsingML(); // Use the model to drive the paddle
-    Serial.println(interpreter->arena_used_bytes());
+    if (interpreter != nullptr) {
+        Serial.println(interpreter->arena_used_bytes());
+    }
     // //Log du lieu khi bong tien gan ben phai va bong da di qua nua san
     // if (now - lastLogTime >= LOG_INTERVAL && currentBallVx > 0 && currentBallX > ((float)SCREEN_WIDTH * 0.5))
     // {
@@ -334,6 +342,8 @@ void gameLogicForHumanML()
     float currentBallVy = ballSpeedY;
     float currentBallVx = ballSpeedX;
     float currentPaddleY = (float)paddleLeftY;
+    float distance = sqrt((PADDLE_WIDTH - currentBallX) * (PADDLE_WIDTH - currentBallX) +
+                            (currentPaddleY - currentBallY) * (currentPaddleY - currentBallY));
 
     float paddleCenterY = currentPaddleY + (PADDLE_HEIGHT / 2.0); 
     float deltaY = paddleCenterY - currentBallY;
@@ -349,12 +359,13 @@ void gameLogicForHumanML()
         {
             if (ballX > 0 && ballX < SCREEN_WIDTH) 
             {
-                    Serial.printf("%f,%f,%f,%f,%f, %f, %d\n",
+                    Serial.printf("%f,%f,%f,%f,%f, %f, %f, %d\n",
                         currentBallX,
                         currentBallY,
                         currentBallVy,
                         currentBallVx,
                         currentPaddleY,
+                        distance,
                         deltaY,
                         action
                     );
@@ -363,7 +374,7 @@ void gameLogicForHumanML()
         }
     }
 
-    aiMoveForML();
+    aiMoveUsingML();
     ballBehavior();
     scoring();
 }
