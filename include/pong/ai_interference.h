@@ -26,7 +26,7 @@
 
 namespace pong {
 
-    extern uint8_t tensorArena[TENSOR_ARENA_SIZE];
+    extern uint8_t* tensorArena;
     extern const tflite::Model* model;
     extern tflite::MicroMutableOpResolver<5> resolver;
     extern tflite::MicroInterpreter* interpreter; // Changed to pointer due to non-default constructor

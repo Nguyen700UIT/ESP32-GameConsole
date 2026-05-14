@@ -23,6 +23,8 @@ void tick()
 {
     if (!gameOverFlag)
     {
+        if (reseted)
+            reseted = false;
         gameLogicForAIML();
         render();
     }
