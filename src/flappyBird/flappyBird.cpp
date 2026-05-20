@@ -14,8 +14,8 @@ timeTheme getTheme()
 
   int hour = timeinfo.tm_hour;
 
-  if (hour >= 17 || hour < 6) return DAY;
-  return NIGHT;
+  if (hour >= 17 || hour < 6) return NIGHT;
+  return DAY;
 
 }
 

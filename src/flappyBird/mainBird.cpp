@@ -29,10 +29,7 @@ void enter()
 
 void tick()
 {
-  if (reseted) {
-    resetGame();
-    reseted = false;
-  }
+
 
   if (!gameOver) {
     if (isUp) {
@@ -49,9 +46,18 @@ void tick()
     }
     updateTubes();
     renderGame(theme);
+    if (reseted) 
+    {
+      reseted = false;
+    }
   }
   else {
     handleGameOver();
+    if (reseted)
+    {
+      reseted = false;
+      resetGame();
+    }
   }
 }
 

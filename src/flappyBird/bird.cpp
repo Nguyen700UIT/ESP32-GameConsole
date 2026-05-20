@@ -1,4 +1,5 @@
 #include "flappyBird/bird.h"
+#include <pgmspace.h>
 
 namespace flappy_bird {
 
@@ -109,9 +110,18 @@ void updateAnimation()
 void drawBird()
 {
     const uint16_t* frames[] = {birdUP_565, birdMID_565, birdDOWN_565};
-    canvas.setSwapBytes(true);
-    canvas.pushImage(BIRD_X, (int)birdY, birdWidth, birdHeight, frames[birdFrame]);
-    canvas.setSwapBytes(false);
+    constexpr uint16_t BIRD_TRANSPARENT = 0x867d; //Blue
+    const uint16_t* frame = frames[birdFrame];
+    const int y = static_cast<int>(birdY);
+
+    for (int py = 0; py < birdHeight; ++py) {
+        for (int px = 0; px < birdWidth; ++px) {
+            uint16_t color = pgm_read_word(&frame[py * birdWidth + px]); //get pixel
+            if (color != BIRD_TRANSPARENT) {
+                canvas.drawPixel(BIRD_X + px, y + py, color);
+            }
+        }
+    }
 }
 
 void birdDropLogic()
