@@ -26,10 +26,11 @@ bool getTime()
 
 bool syncTime(tm &timeinfo)
 {
+    timeinfo = {};
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     unsigned long startTime = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
+    while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000)
     {
         delay(100);
     }
@@ -37,16 +38,31 @@ bool syncTime(tm &timeinfo)
     if (WiFi.status() != WL_CONNECTED)
     {   
         shutdownWifi();
-        Serial.println("failed");
+        Serial.println("time wifi failed");
         return false;
     }
-    Serial.println("connected");
 
-    configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org");
-    bool synced = getLocalTime(&timeinfo, 3000);
+    configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org", "time.google.com", "time.cloudflare.com");
+    bool synced = getLocalTime(&timeinfo, 10000);
+    if (!synced || timeinfo.tm_year + 1900 < 2024)
+    {
+        shutdownWifi();
+        Serial.println("time sync failed");
+        return false;
+    }
+
+    Serial.printf(
+        "time synced: %04d-%02d-%02d %02d:%02d:%02d\n",
+        timeinfo.tm_year + 1900,
+        timeinfo.tm_mon + 1,
+        timeinfo.tm_mday,
+        timeinfo.tm_hour,
+        timeinfo.tm_min,
+        timeinfo.tm_sec
+    );
 
     shutdownWifi();
-    return synced;
+    return true;
 }
 
 }

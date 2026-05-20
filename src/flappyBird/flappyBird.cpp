@@ -6,7 +6,7 @@ namespace flappy_bird {
 
 namespace {
 constexpr uint16_t BACKGROUND_TRANSPARENT = 0x0000;
-constexpr int CELESTIAL_X = 8;
+constexpr int CELESTIAL_X = 36;
 constexpr int CELESTIAL_Y = 8;
 }
 
