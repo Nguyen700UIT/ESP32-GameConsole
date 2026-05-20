@@ -8,3 +8,4 @@
 #define DAYLIGHT_OFFSET_SEC 0
 
 bool getTime();
+bool syncTime(tm &timeinfo);

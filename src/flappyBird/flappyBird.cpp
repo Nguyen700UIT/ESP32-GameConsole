@@ -6,11 +6,8 @@ namespace flappy_bird {
 
 timeTheme getTheme()
 {
-  if (!getTime()) return DAY;
-
   struct tm timeinfo;
-  if(!getLocalTime(&timeinfo, 100)) return DAY;
-
+  if (!syncTime(timeinfo)) return DAY;
 
   int hour = timeinfo.tm_hour;
 

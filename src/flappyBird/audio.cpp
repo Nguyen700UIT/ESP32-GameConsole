@@ -83,7 +83,6 @@ void playRickRoll()
         else if (divider < 0) noteDuration = (wholeNoteTheme / abs(divider)) * 1.5;
 
         volume = smoothRead(POT);
-        Serial.println(volume);
         ledcWriteTone(PWM_CHANNEL_BUZZER, melodyTheme[currNote]);
         ledcWrite(PWM_CHANNEL_BUZZER, volume);
         vTaskDelay((noteDuration * 0.9) / portTICK_PERIOD_MS);

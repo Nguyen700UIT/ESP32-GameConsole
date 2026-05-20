@@ -15,6 +15,12 @@ void shutdownWifi()
 
 bool getTime()
 {
+    struct tm timeinfo;
+    return syncTime(timeinfo);
+}
+
+bool syncTime(tm &timeinfo)
+{
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     unsigned long startTime = millis();
@@ -32,7 +38,6 @@ bool getTime()
     Serial.println("connected");
 
     configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org");
-    struct tm timeinfo;
     bool synced = getLocalTime(&timeinfo, 3000);
 
     shutdownWifi();

@@ -22,8 +22,8 @@ void enter()
   initAudio();
   initDisplay();
   resetGame();
-  renderGame(DAY);
   theme = getTheme();
+  renderGame(theme);
   reseted = false;
 }
 
