@@ -1,7 +1,6 @@
 #include "pong/ai_interference.h"
 
 #include <cstdint>
-#include <cstdlib>
 
 
 namespace pong {
@@ -13,18 +12,12 @@ namespace pong {
     TfLiteTensor* output = nullptr;
 
     namespace {
-        uint8_t* tensorArenaStorage = nullptr;
+        alignas(16) uint8_t tensorArenaStorage[TENSOR_ARENA_SIZE];
 
         bool ensureTensorArena()
         {
             if (tensorArena != nullptr) return true;
-            //Prevent misalign address causing tensor arena not allocated as desired
-            tensorArenaStorage = static_cast<uint8_t*>(malloc(TENSOR_ARENA_SIZE + 16)); //Prevent losing bytes for allocation
-            if (tensorArenaStorage == nullptr) return false;
-            //Align 16 bytes by plus 15 to move to next multiplier of 16 and set 4 low bit to 0 so address is always divisible by 16
-            uintptr_t alignedAddress = (reinterpret_cast<uintptr_t>(tensorArenaStorage) + 15) & ~static_cast<uintptr_t>(15);
-            //Align address % 16 = 0 cast address to pointer to make it adress
-            tensorArena = reinterpret_cast<uint8_t*>(alignedAddress);
+            tensorArena = tensorArenaStorage;
             return true;
         }
     }
@@ -80,14 +73,7 @@ namespace pong {
         input = nullptr;
         output = nullptr;
         model = nullptr;
-
-        if (tensorArenaStorage != nullptr)
-        {
-        free(tensorArenaStorage);
-
-        tensorArenaStorage = nullptr;
         tensorArena = nullptr;
-        }
     }
 
     inline float clamp(float x)

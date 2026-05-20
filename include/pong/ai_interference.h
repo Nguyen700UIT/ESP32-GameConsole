@@ -8,7 +8,7 @@
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-#define TENSOR_ARENA_SIZE 70*1024 //70KB RAM
+#define TENSOR_ARENA_SIZE 68*1024 //68KB static RAM
 #define MAX_BALL_X 319.02
 #define MIN_BALL_X 18.00
 #define MAX_BALL_Y 192.00

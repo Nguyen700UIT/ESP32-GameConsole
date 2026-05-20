@@ -10,7 +10,7 @@ void initDisplay()
   tft.init();
   tft.setRotation(1);
   canvas.setColorDepth(8);
-  canvas.createSprite(SCREEN_WIDTH, SCREEN_HEIGHT);
+  canvas.createSprite(SCREEN_WIDTH, GAME_HEIGHT);
 }
 
 }

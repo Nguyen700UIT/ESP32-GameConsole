@@ -21,26 +21,43 @@ struct Bait
     uint16_t baitColor;
 };
 
+enum snakeColor
+{
+    RED, BLUE, YELLOW
+};
+
 extern Bait bait;
 extern const uint16_t baitBmp[] PROGMEM;
-extern const uint16_t headUp[] PROGMEM;
-extern const uint16_t headDown[] PROGMEM;
-extern const uint16_t headLeft[] PROGMEM;
-extern const uint16_t headRight[] PROGMEM;
-extern const uint16_t snakeBody[] PROGMEM;
+extern const uint16_t headBlueUp[] PROGMEM;
+extern const uint16_t headBlueDown[] PROGMEM;
+extern const uint16_t headBlueLeft[] PROGMEM;
+extern const uint16_t headBlueRight[] PROGMEM;
+extern const uint16_t snakeBlueBody[] PROGMEM;
+extern const uint16_t headRedUp[] PROGMEM;
+extern const uint16_t headRedDown[] PROGMEM;   
+extern const uint16_t headRedLeft[] PROGMEM;
+extern const uint16_t headRedRight[] PROGMEM;
+extern const uint16_t snakeRedBody[] PROGMEM;
+extern const uint16_t headYellowUp[] PROGMEM;
+extern const uint16_t headYellowDown[] PROGMEM;
+extern const uint16_t headYellowLeft[] PROGMEM;
+extern const uint16_t headYellowRight[] PROGMEM;
+extern const uint16_t snakeYellowBody[] PROGMEM;
 
+
+snakeColor getColor();
 void initBait();
 void readDirection();
 void move();
 bool eat();
-void drawSnake();
+void drawSnake(snakeColor color);
 void eraseSnakeTail();
 void drawBait();
 void isGameOver();
 void drawPlayingUI();
 void drawScore();
 void drawGameOverUI();
-void renderBoard(bool& ate);
+void renderBoard(bool& ate, snakeColor color);
 void gameReset();
 
 }

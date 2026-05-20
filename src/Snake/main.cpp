@@ -8,6 +8,10 @@
 
 
 namespace snake {
+
+namespace{
+    snakeColor color;
+}
 void enter()
 {
     prefs.begin("scores", false); //Not read only
@@ -15,6 +19,7 @@ void enter()
     initAudio();
     initDisplay();
     gameReset();
+    color = getColor();
     isUp = false;
     isDown = false;
     isLeft = false;
@@ -55,7 +60,7 @@ void tick()
                     prevScore = score;
                 }
 
-                renderBoard(ate);
+                renderBoard(ate, color);
             }
         }
     }
@@ -65,6 +70,7 @@ void tick()
         if (reseted)
         {
             gameReset();
+            color = getColor();
             reseted = false;
         }
     }

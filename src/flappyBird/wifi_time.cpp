@@ -1,4 +1,17 @@
 #include "flappyBird/wifi_time.h"
+#include <esp_wifi.h>
+
+namespace {
+
+void shutdownWifi()
+{
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    esp_wifi_stop();
+    esp_wifi_deinit();
+}
+
+}
 
 bool getTime()
 {
@@ -12,8 +25,7 @@ bool getTime()
 
     if (WiFi.status() != WL_CONNECTED)
     {   
-        WiFi.disconnect(true);
-        WiFi.mode(WIFI_OFF);
+        shutdownWifi();
         Serial.println("failed");
         return false;
     }
@@ -23,10 +35,8 @@ bool getTime()
     tm timeinfo;
     bool synced = getLocalTime(&timeinfo, 3000);
 
-    WiFi.disconnect(true);
-    WiFi.mode(WIFI_OFF);
+    shutdownWifi();
     return synced;
 }
-
 
 

@@ -75,15 +75,16 @@ void renderGame(timeTheme theme)
   drawTube();
   updateAnimation();
   drawBird();
-  canvas.drawFastHLine(0, GAME_HEIGHT, SCREEN_WIDTH, TFT_WHITE);
-  canvas.fillRect(0, GAME_HEIGHT + 1, SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT, TFT_DARKGREY);
-  canvas.setTextSize(2);
-  canvas.setTextColor(TFT_WHITE);
-  canvas.setCursor(10, GAME_HEIGHT + 12);
-  canvas.printf("SCORE: %d", score);
-  canvas.setCursor(180, GAME_HEIGHT + 12);
-  canvas.printf("BEST: %d", bestScore);
   canvas.pushSprite(0, 0);
+
+  tft.drawFastHLine(0, GAME_HEIGHT, SCREEN_WIDTH, TFT_WHITE);
+  tft.fillRect(0, GAME_HEIGHT + 1, SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT, TFT_DARKGREY);
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
+  tft.setCursor(10, GAME_HEIGHT + 12);
+  tft.printf("SCORE: %d", score);
+  tft.setCursor(180, GAME_HEIGHT + 12);
+  tft.printf("BEST: %d", bestScore);
 }
 
 void handleGameOver()
