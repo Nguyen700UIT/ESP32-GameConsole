@@ -6,10 +6,18 @@
 
 namespace flappy_bird {
 
+enum timeTheme
+{
+    DAY, NIGHT
+};
+
+
+
+timeTheme getTheme();
 void collisionLogic();
 void scored();
 void resetGame();
-void renderGame();
+void renderGame(timeTheme theme);
 void handleGameOver();
 
 }

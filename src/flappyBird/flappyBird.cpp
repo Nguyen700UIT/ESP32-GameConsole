@@ -1,6 +1,23 @@
 #include "flappyBird/flappyBird.h"
+#include "flappyBird/wifi_time.h"
 
 namespace flappy_bird {
+
+
+timeTheme getTheme()
+{
+  if (!getTime()) return DAY;
+
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo, 100)) return DAY;
+
+
+  int hour = timeinfo.tm_hour;
+
+  if (hour >= 17 || hour < 6) return DAY;
+  return NIGHT;
+
+}
 
 void collisionLogic()
 {
@@ -43,9 +60,18 @@ void resetGame()
   isUp = false;
 }
 
-void renderGame()
+void renderGame(timeTheme theme)
 {
-  canvas.fillSprite(TFT_SKYBLUE);
+  switch(theme)
+  {
+    case DAY:
+      canvas.fillSprite(TFT_SKYBLUE);
+      break;
+    case NIGHT:
+      canvas.fillSprite(TFT_BLACK);
+      break;
+  }
+
   drawTube();
   updateAnimation();
   drawBird();

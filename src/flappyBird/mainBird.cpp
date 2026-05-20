@@ -10,7 +10,8 @@
 
 namespace flappy_bird {
 namespace {
-int savedBestScore = 0;
+  int savedBestScore = 0;
+  timeTheme theme;
 }
 
 void enter()
@@ -21,6 +22,8 @@ void enter()
   initAudio();
   initDisplay();
   resetGame();
+  renderGame(DAY);
+  theme = getTheme();
   reseted = false;
 }
 
@@ -45,7 +48,7 @@ void tick()
       savedBestScore = bestScore;
     }
     updateTubes();
-    renderGame();
+    renderGame(theme);
   }
   else {
     handleGameOver();
