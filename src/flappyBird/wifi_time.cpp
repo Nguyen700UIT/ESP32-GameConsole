@@ -32,7 +32,7 @@ bool getTime()
     Serial.println("connected");
 
     configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org");
-    tm timeinfo;
+    struct tm timeinfo;
     bool synced = getLocalTime(&timeinfo, 3000);
 
     shutdownWifi();
