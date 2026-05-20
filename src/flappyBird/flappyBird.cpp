@@ -1,19 +1,65 @@
 #include "flappyBird/flappyBird.h"
+#include "flappyBird/background.h"
 #include "flappyBird/wifi_time.h"
 
 namespace flappy_bird {
+
+namespace {
+constexpr uint16_t BACKGROUND_TRANSPARENT = 0x0000;
+constexpr int CELESTIAL_X = 8;
+constexpr int CELESTIAL_Y = 8;
+}
 
 
 timeTheme getTheme()
 {
   struct tm timeinfo;
-  if (!syncTime(timeinfo)) return DAY;
+  if (!syncTime(timeinfo)) return NOON;
 
   int hour = timeinfo.tm_hour;
 
+  if (hour >= 6 && hour < 11) return MORNING;
   if (hour >= 17 || hour < 6) return NIGHT;
-  return DAY;
+  return NOON;
 
+}
+
+void drawMorning()
+{
+  canvas.fillSprite(TFT_SKYBLUE);
+  drawBitmapTransparent(canvas, CELESTIAL_X, CELESTIAL_Y, SUN_WIDTH, SUN_HEIGHT, sunMorning, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 80, 22, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 210, 52, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning2, BACKGROUND_TRANSPARENT);
+}
+
+void drawNoon()
+{
+  uint16_t colorNoon = tft.color565(253, 179, 115);
+  canvas.fillSprite(colorNoon);
+  drawBitmapTransparent(canvas, CELESTIAL_X, CELESTIAL_Y, SUN_WIDTH, SUN_HEIGHT, sunNoon, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 70, 24, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 220, 58, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon2, BACKGROUND_TRANSPARENT);
+}
+
+void drawNight()
+{
+  uint16_t colorNight = tft.color565(66, 67, 113);
+  canvas.fillSprite(colorNight);
+  drawBitmapTransparent(canvas, CELESTIAL_X, CELESTIAL_Y, MOON_WIDTH, MOON_HEIGHT, moon, BACKGROUND_TRANSPARENT);
+
+  const unsigned long blinkFrame = (millis() / 500) % 4;
+  if (blinkFrame != 1) {
+    drawBitmapTransparent(canvas, 58, 24, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
+  if (blinkFrame != 2) {
+    drawBitmapTransparent(canvas, 138, 50, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
+  if (blinkFrame != 3) {
+    drawBitmapTransparent(canvas, 250, 34, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
+
+  drawBitmapTransparent(canvas, 92, 62, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 220, 78, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight2, BACKGROUND_TRANSPARENT);
 }
 
 void collisionLogic()
@@ -61,11 +107,14 @@ void renderGame(timeTheme theme)
 {
   switch(theme)
   {
-    case DAY:
-      canvas.fillSprite(TFT_SKYBLUE);
+    case MORNING:
+      drawMorning();
+      break;
+    case NOON:
+      drawNoon();
       break;
     case NIGHT:
-      canvas.fillSprite(TFT_BLACK);
+      drawNight();
       break;
   }
 

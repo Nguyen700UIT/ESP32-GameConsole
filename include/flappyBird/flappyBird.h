@@ -8,12 +8,15 @@ namespace flappy_bird {
 
 enum timeTheme
 {
-    DAY, NIGHT
+    MORNING, NOON, NIGHT
 };
 
 
 
 timeTheme getTheme();
+void drawMorning();
+void drawNoon();
+void drawNight();
 void collisionLogic();
 void scored();
 void resetGame();
