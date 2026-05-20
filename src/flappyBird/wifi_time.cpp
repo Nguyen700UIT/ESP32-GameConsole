@@ -1,6 +1,11 @@
 #include "flappyBird/wifi_time.h"
 #include <esp_wifi.h>
 
+
+namespace flappy_bird{
+
+
+
 namespace {
 
 void shutdownWifi()
@@ -44,4 +49,4 @@ bool syncTime(tm &timeinfo)
     return synced;
 }
 
-
+}

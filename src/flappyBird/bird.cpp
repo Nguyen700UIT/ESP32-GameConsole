@@ -113,15 +113,7 @@ void drawBird()
     constexpr uint16_t BIRD_TRANSPARENT = 0x867d; //Blue
     const uint16_t* frame = frames[birdFrame];
     const int y = static_cast<int>(birdY);
-
-    for (int py = 0; py < birdHeight; ++py) {
-        for (int px = 0; px < birdWidth; ++px) {
-            uint16_t color = pgm_read_word(&frame[py * birdWidth + px]); //get pixel
-            if (color != BIRD_TRANSPARENT) {
-                canvas.drawPixel(BIRD_X + px, y + py, color);
-            }
-        }
-    }
+    drawBitmapTransparent(canvas, BIRD_X, y, birdWidth, birdHeight, frame, BIRD_TRANSPARENT);
 }
 
 void birdDropLogic()

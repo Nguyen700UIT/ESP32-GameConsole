@@ -7,5 +7,9 @@
 #define GMT_OFFSET_SEC 7*3600
 #define DAYLIGHT_OFFSET_SEC 0
 
-bool getTime();
-bool syncTime(tm &timeinfo);
+namespace flappy_bird
+{
+    bool getTime();
+    bool syncTime(tm &timeinfo);
+}
+
