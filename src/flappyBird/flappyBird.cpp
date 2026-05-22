@@ -8,6 +8,8 @@ namespace {
 constexpr uint16_t BACKGROUND_TRANSPARENT = 0x0000;
 constexpr int CELESTIAL_X = 36;
 constexpr int CELESTIAL_Y = 25;
+int prevScore = -1;
+int prevBestScore = -1;
 }
 
 timeTheme getTheme()
@@ -138,6 +140,45 @@ void resetGame()
   resetBird();
   lost = false;
   isUp = false;
+  drawPlayingUI();
+}
+
+void drawPlayingUI()
+{
+  tft.drawFastHLine(0, GAME_HEIGHT, SCREEN_WIDTH, TFT_WHITE);
+  tft.fillRect(0, GAME_HEIGHT + 1, SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT, TFT_DARKGREY);
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
+  tft.setCursor(10, GAME_HEIGHT + 12);
+  tft.print("SCORE: ");
+  tft.setCursor(180, GAME_HEIGHT + 12);
+  tft.print("BEST: ");
+
+  prevScore = -1;
+  prevBestScore = -1;
+  drawScore();
+}
+
+void drawScore()
+{
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
+
+  if (score != prevScore)
+  {
+    tft.fillRect(85, GAME_HEIGHT + 12, 70, 16, TFT_DARKGREY);
+    tft.setCursor(85, GAME_HEIGHT + 12);
+    tft.printf("%05d", score);
+    prevScore = score;
+  }
+
+  if (bestScore != prevBestScore)
+  {
+    tft.fillRect(245, GAME_HEIGHT + 12, 70, 16, TFT_DARKGREY);
+    tft.setCursor(245, GAME_HEIGHT + 12);
+    tft.printf("%05d", bestScore);
+    prevBestScore = bestScore;
+  }
 }
 
 void renderGame(timeTheme theme)
@@ -183,15 +224,7 @@ void renderGame(timeTheme theme)
   updateAnimation();
   drawBird();
   canvas.pushSprite(0, 0);
-
-  tft.drawFastHLine(0, GAME_HEIGHT, SCREEN_WIDTH, TFT_WHITE);
-  tft.fillRect(0, GAME_HEIGHT + 1, SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT, TFT_DARKGREY);
-  tft.setTextSize(2);
-  tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
-  tft.setCursor(10, GAME_HEIGHT + 12);
-  tft.printf("SCORE: %d", score);
-  tft.setCursor(180, GAME_HEIGHT + 12);
-  tft.printf("BEST: %d", bestScore);
+  drawScore();
 }
 
 void handleGameOver()

@@ -16,6 +16,8 @@ void drawNight();
 void collisionLogic();
 void scored();
 void resetGame();
+void drawPlayingUI();
+void drawScore();
 void renderGame(timeTheme theme);
 void handleGameOver();
 

@@ -30,6 +30,8 @@ void ballBehavior();
 void scoring();
 void gameLogic();
 void resetGame();
+void drawPlayingUI();
+void drawScore();
 void render();
 void drawGameOver();
 

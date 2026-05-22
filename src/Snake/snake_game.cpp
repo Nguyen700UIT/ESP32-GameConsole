@@ -7,12 +7,13 @@ const int BASE_MOVE_DELAY = 150;
 int moveDelay = BASE_MOVE_DELAY;
 const int MIN_MOVE_DELAY = 45;
 const int MAX_MOVE_DELAY = 350;
-const int SPEED_STEP = 25;
+const int SPEED_STEP = 50;
 const unsigned long SPECIAL_BAIT_LIFETIME = 5000;
 unsigned long prevTime = 0;
 unsigned long currTime = 0;
 
 int prevScore = -1;
+int prevBestScore = -1;
 int score = 0;
 int bestScore = 0;
 uint16_t GAME_GREEN = tft_snake.color565(21, 133, 50);
@@ -666,9 +667,13 @@ void drawScore()
     tft_snake.setCursor(85, GAME_HEIGHT + 12);
     tft_snake.printf("%05d", score); // In 3 chữ số (VD: 005)
     
-    // Dịch tọa độ X ra sau chữ "BEST: "
-    tft_snake.setCursor(245, GAME_HEIGHT + 12);
-    tft_snake.printf("%05d", bestScore);
+    if (bestScore != prevBestScore)
+    {
+        // Dịch tọa độ X ra sau chữ "BEST: "
+        tft_snake.setCursor(245, GAME_HEIGHT + 12);
+        tft_snake.printf("%05d", bestScore);
+        prevBestScore = bestScore;
+    }
 }
 
 void renderBoard(bool &ate, snakeColor color)
@@ -700,6 +705,7 @@ void gameReset()
     bait.active = false;
     specialBait.active = false;
     prevScore = -1; // Ép vẽ lại điểm số lần đầu
+    prevBestScore = -1;
     resetSnake();
     snakeDir = right;
     gameOver = false;

@@ -14,6 +14,8 @@ unsigned long lastPredictionTime = 0;
 float currentBallSpeedMagnitude = BALL_BASE_SPEED; //global variable to track dynamic base speed
 unsigned long lastLogTime = 0;
 float ballMultiplier = 0;
+int prevPlayerScore = -1;
+int prevAiScore = -1;
 
 
 
@@ -285,6 +287,45 @@ void resetGame()
     aiReaction = 14;
     lastPredictionTime = 0;
     resetBall();
+    drawPlayingUI();
+}
+
+void drawPlayingUI()
+{
+    tft.drawFastHLine(0, GAME_HEIGHT, SCREEN_WIDTH, TFT_WHITE);
+    tft.fillRect(0, GAME_HEIGHT + 1, SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT, TFT_DARKGREY);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
+    tft.setCursor(10, GAME_HEIGHT + 12);
+    tft.print("PLAYER: ");
+    tft.setCursor(180, GAME_HEIGHT + 12);
+    tft.print("AI: ");
+
+    prevPlayerScore = -1;
+    prevAiScore = -1;
+    drawScore();
+}
+
+void drawScore()
+{
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
+
+    if (playerScore != prevPlayerScore)
+    {
+        tft.fillRect(100, GAME_HEIGHT + 12, 55, 16, TFT_DARKGREY);
+        tft.setCursor(100, GAME_HEIGHT + 12);
+        tft.printf("%02d", playerScore);
+        prevPlayerScore = playerScore;
+    }
+
+    if (aiScore != prevAiScore)
+    {
+        tft.fillRect(220, GAME_HEIGHT + 12, 45, 16, TFT_DARKGREY);
+        tft.setCursor(220, GAME_HEIGHT + 12);
+        tft.printf("%02d", aiScore);
+        prevAiScore = aiScore;
+    }
 }
 
 void gameLogicForAIML()
@@ -394,15 +435,7 @@ void render()
     canvas.fillRect(SCREEN_WIDTH - PADDLE_WIDTH, paddleRightY, PADDLE_WIDTH, PADDLE_HEIGHT, TFT_BROWN);
     canvas.fillCircle((int)ballX + BALL_SIZE / 2, (int)ballY + BALL_SIZE / 2, BALL_SIZE / 2, TFT_RED);
     canvas.pushSprite(0, 0);
-
-    tft.fillRect(0, GAME_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT - GAME_HEIGHT, TFT_DARKGREY);
-    tft.drawFastHLine(0, GAME_HEIGHT, SCREEN_WIDTH, TFT_WHITE);
-    tft.setTextSize(2);
-    tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
-    tft.setCursor(10, GAME_HEIGHT + 12);
-    tft.printf("PLAYER: %d", playerScore);
-    tft.setCursor(180, GAME_HEIGHT + 12);
-    tft.printf("AI: %d", aiScore);
+    drawScore();
 }
 
 void drawGameOver()
