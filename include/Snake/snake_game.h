@@ -5,7 +5,8 @@
 namespace snake {
 
 //Game 
-extern const int moveDelay;
+extern const int BASE_MOVE_DELAY;
+extern int moveDelay;
 extern unsigned long prevTime;
 extern unsigned long currTime;
 
@@ -14,11 +15,23 @@ extern int score;
 extern bool drewGameOverUI;
 extern int bestScore;
 
+enum BaitType
+{
+    BAIT_RED,
+    BAIT_YELLOW,
+    BAIT_GREEN,
+    BAIT_BLUE,
+    BAIT_RAINBOW
+};
+
 struct Bait
 {
     int x;
     int y;
     uint16_t baitColor;
+    BaitType type;
+    bool active;
+    unsigned long spawnedAt;
 };
 
 enum snakeColor
@@ -27,7 +40,14 @@ enum snakeColor
 };
 
 extern Bait bait;
+extern Bait specialBait;
+extern int normalBaitEaten;
 extern const uint16_t baitBmp[] PROGMEM;
+extern const uint16_t baitBlueBmp[] PROGMEM;
+extern const uint16_t baitYellowBmp[] PROGMEM;
+extern const uint16_t baitGreenBmp[] PROGMEM;
+extern const uint16_t baitRainbowBmp[] PROGMEM;
+
 extern const uint16_t headBlueUp[] PROGMEM;
 extern const uint16_t headBlueDown[] PROGMEM;
 extern const uint16_t headBlueLeft[] PROGMEM;
@@ -47,11 +67,13 @@ extern const uint16_t snakeYellowBody[] PROGMEM;
 
 snakeColor getColor();
 void initBait();
+void updateSpecialBait();
 void readDirection();
 void move();
 bool eat();
 void drawSnake(snakeColor color);
 void eraseSnakeTail();
+void drawBait(const Bait& currentBait);
 void drawBait();
 void isGameOver();
 void drawPlayingUI();

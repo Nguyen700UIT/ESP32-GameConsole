@@ -34,6 +34,8 @@ void tick()
 
     if (!gameOver)
     {
+        updateSpecialBait();
+
         if (reseted)
         {
             reseted = false;
@@ -49,7 +51,6 @@ void tick()
             isGameOver();
             if (!gameOver)
             {
-                score = (nTail - 1) * 10;
                 if(score > bestScore)
                 {
                     bestScore = score; //Update score

@@ -3,7 +3,12 @@
 
 namespace snake {
 
-const int moveDelay = 150;
+const int BASE_MOVE_DELAY = 150;
+int moveDelay = BASE_MOVE_DELAY;
+const int MIN_MOVE_DELAY = 45;
+const int MAX_MOVE_DELAY = 350;
+const int SPEED_STEP = 25;
+const unsigned long SPECIAL_BAIT_LIFETIME = 5000;
 unsigned long prevTime = 0;
 unsigned long currTime = 0;
 
@@ -13,6 +18,8 @@ int bestScore = 0;
 uint16_t GAME_GREEN = tft_snake.color565(21, 133, 50);
 bool drewGameOverUI = false;
 Bait bait;
+Bait specialBait;
+int normalBaitEaten = 0;
 const uint16_t baitBmp[] PROGMEM = {
     0x1426, 0x1426, 0xa381, 0xa381, 0x1426, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426, 
   0xa381, 0xa381, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426, 0xf800, 0xf800, 0xa381, 
@@ -23,6 +30,50 @@ const uint16_t baitBmp[] PROGMEM = {
   0xf800, 0xf800, 0xf800, 0xf800, 0xffff, 0xffff, 0xf800, 0xf800, 0x1426, 0xf800, 0xf800, 0xf800, 
   0xf800, 0xf800, 0xffff, 0xf800, 0xf800, 0x1426, 0x1426, 0x1426, 0xf800, 0xf800, 0xf800, 0xf800, 
   0xf800, 0xf800, 0x1426, 0x1426, 
+};
+const uint16_t baitBlueBmp[] PROGMEM = {
+    0x1426, 0x1426, 0xA381, 0xA381, 0x1426, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426,
+  0xA381, 0xA381, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426, 0x1C19, 0x1C19, 0xA381,
+  0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1426, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19,
+  0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19,
+  0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19,
+  0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19, 0x1C19,
+  0x1C19, 0x1C19, 0x1C19, 0x1C19, 0xFFFF, 0xFFFF, 0x1C19, 0x1C19, 0x1426, 0x1C19, 0x1C19, 0x1C19,
+  0x1C19, 0x1C19, 0xFFFF, 0x1C19, 0x1C19, 0x1426, 0x1426, 0x1426, 0x1C19, 0x1C19, 0x1C19, 0x1C19,
+  0x1C19, 0x1C19, 0x1426, 0x1426
+};
+const uint16_t baitYellowBmp[] PROGMEM = {
+    0x1426, 0x1426, 0xA381, 0xA381, 0x1426, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426,
+  0xA381, 0xA381, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426, 0xFF80, 0xFF80, 0xA381,
+  0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0x1426, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80,
+  0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80,
+  0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80,
+  0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFF80,
+  0xFF80, 0xFF80, 0xFF80, 0xFF80, 0xFFFF, 0xFFFF, 0xFF80, 0xFF80, 0x1426, 0xFF80, 0xFF80, 0xFF80,
+  0xFF80, 0xFF80, 0xFFFF, 0xFF80, 0xFF80, 0x1426, 0x1426, 0x1426, 0xFF80, 0xFF80, 0xFF80, 0xFF80,
+  0xFF80, 0xFF80, 0x1426, 0x1426
+};
+const uint16_t baitGreenBmp[] PROGMEM = {
+    0x1426, 0x1426, 0xA381, 0xA381, 0x1426, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426,
+  0xA381, 0xA381, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426, 0x14E0, 0x14E0, 0xA381,
+  0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x1426, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0,
+  0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0,
+  0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0,
+  0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0, 0x14E0,
+  0x14E0, 0x14E0, 0x14E0, 0x14E0, 0xFFFF, 0xFFFF, 0x14E0, 0x14E0, 0x1426, 0x14E0, 0x14E0, 0x14E0,
+  0x14E0, 0x14E0, 0xFFFF, 0x14E0, 0x14E0, 0x1426, 0x1426, 0x1426, 0x14E0, 0x14E0, 0x14E0, 0x14E0,
+  0x14E0, 0x14E0, 0x1426, 0x1426
+};
+const uint16_t baitRainbowBmp[] PROGMEM = {
+    0x1426, 0x1426, 0x59E0, 0x59E0, 0x1426, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426,
+  0x59E0, 0x59E0, 0x1648, 0x1648, 0x1648, 0x1426, 0x1426, 0x1426, 0x1426, 0x04DD, 0x04DD, 0x59E0,
+  0x01FF, 0x01FF, 0x601B, 0x601B, 0x601B, 0x1426, 0x0386, 0x0386, 0x04DD, 0x04DD, 0x04DD, 0x01FF,
+  0x01FF, 0x601B, 0x601B, 0x601B, 0xFF80, 0xFF80, 0x0386, 0x0386, 0x04DD, 0x04DD, 0x01FF, 0x01FF,
+  0x01FF, 0x601B, 0xFB40, 0xFF80, 0xFF80, 0xFF80, 0x0386, 0x0386, 0x04DD, 0x04DD, 0x01FF, 0x01FF,
+  0xFB40, 0xFB40, 0xFB40, 0xFF80, 0xFF80, 0x0386, 0x0386, 0x04DD, 0x04DD, 0x01FF, 0xF800, 0xF800,
+  0xFB40, 0xFB40, 0xFF80, 0xFF80, 0x0386, 0x0386, 0x04DD, 0x04DD, 0x1426, 0xF800, 0xF800, 0xFB40,
+  0xFB40, 0xFF80, 0xFF80, 0x0386, 0x0386, 0x1426, 0x1426, 0x1426, 0xF800, 0xF800, 0xFB40, 0xFB40,
+  0xFF80, 0xFF80, 0x1426, 0x1426
 };
 const uint16_t headBlueUp[] PROGMEM = {
     0x1426, 0x1c19, 0xffff, 0x1c19, 0xf800, 0xf800, 0x1c19, 0xffff, 0x1c19, 0x1426, 0x1c19, 0x1c19, 
@@ -200,6 +251,175 @@ const uint16_t snakeYellowBody[] PROGMEM = {
   0xFE60, 0xFE60, 0x1426, 0x1426
 };
 
+namespace {
+
+const int MAX_TAIL_LENGTH = 100;
+
+BaitType randomNormalBaitType()
+{
+    return random(0, 2) == 0 ? BAIT_RED : BAIT_YELLOW;
+}
+
+BaitType randomSpecialBaitType()
+{
+    switch (random(0, 3))
+    {
+        case 0:
+            return BAIT_GREEN;
+        case 1:
+            return BAIT_BLUE;
+        default:
+            return BAIT_RAINBOW;
+    }
+}
+
+const uint16_t* getBaitBitmap(BaitType type)
+{
+    switch (type)
+    {
+        case BAIT_YELLOW:
+            return baitYellowBmp;
+        case BAIT_GREEN:
+            return baitGreenBmp;
+        case BAIT_BLUE:
+            return baitBlueBmp;
+        case BAIT_RAINBOW:
+            return baitRainbowBmp;
+        case BAIT_RED:
+        default:
+            return baitBmp;
+    }
+}
+
+int getBaitScore(BaitType type)
+{
+    switch (type)
+    {
+        case BAIT_YELLOW:
+            return 15;
+        case BAIT_GREEN:
+            return 15;
+        case BAIT_BLUE:
+            return 20;
+        case BAIT_RAINBOW:
+            return 15;
+        case BAIT_RED:
+        default:
+            return 10;
+    }
+}
+
+bool overlapsSnake(int x, int y)
+{
+    if (headX == x && headY == y)
+    {
+        return true;
+    }
+
+    for (int i = 0; i < nTail; ++i)
+    {
+        if (tailX[i] == x && tailY[i] == y)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool overlapsBait(const Bait& currentBait, int x, int y)
+{
+    return currentBait.active && currentBait.x == x && currentBait.y == y;
+}
+
+void initBaitAt(Bait& currentBait, BaitType type, const Bait* otherBait)
+{
+    int maxCol = SNAKE_BOARD_WIDTH / SNAKE_BLOCK_SIZE;
+    int maxRow = SNAKE_BOARD_HEIGHT / SNAKE_BLOCK_SIZE;
+    bool valid = false;
+
+    while(!valid)
+    {
+        currentBait.x = random(0, maxCol) * SNAKE_BLOCK_SIZE;
+        currentBait.y = random(0, maxRow) * SNAKE_BLOCK_SIZE;
+        valid = !overlapsSnake(currentBait.x, currentBait.y);
+
+        if (valid && otherBait != nullptr)
+        {
+            valid = !overlapsBait(*otherBait, currentBait.x, currentBait.y);
+        }
+    }
+
+    currentBait.type = type;
+    currentBait.active = true;
+    currentBait.spawnedAt = millis();
+}
+
+void clearBait(const Bait& currentBait)
+{
+    if (!currentBait.active)
+    {
+        return;
+    }
+
+    tft_snake.fillRect(currentBait.x, currentBait.y, SNAKE_BLOCK_SIZE, SNAKE_BLOCK_SIZE, GAME_GREEN);
+}
+
+void growSnake()
+{
+    if (nTail < MAX_TAIL_LENGTH)
+    {
+        nTail++;
+    }
+}
+
+void shrinkSnake()
+{
+    if (nTail <= 1)
+    {
+        return;
+    }
+
+    tft_snake.fillRect(tailX[nTail - 1], tailY[nTail - 1], SNAKE_BLOCK_SIZE, SNAKE_BLOCK_SIZE, GAME_GREEN);
+    nTail--;
+}
+
+void applyBaitEffect(BaitType type)
+{
+    score += getBaitScore(type);
+
+    switch (type)
+    {
+        case BAIT_GREEN:
+            growSnake();
+            moveDelay = min(moveDelay + SPEED_STEP, MAX_MOVE_DELAY);
+            break;
+        case BAIT_BLUE:
+            growSnake();
+            moveDelay = max(moveDelay - SPEED_STEP, MIN_MOVE_DELAY);
+            break;
+        case BAIT_RAINBOW:
+            shrinkSnake();
+            break;
+        case BAIT_RED:
+        case BAIT_YELLOW:
+        default:
+            growSnake();
+            break;
+    }
+}
+
+void spawnSpecialBait()
+{
+    if (specialBait.active)
+    {
+        return;
+    }
+
+    initBaitAt(specialBait, randomSpecialBaitType(), &bait);
+}
+
+}
 
 snakeColor getColor()
 {
@@ -218,28 +438,20 @@ snakeColor getColor()
 
 void initBait()
 {
-    int maxCol = SNAKE_BOARD_WIDTH / SNAKE_BLOCK_SIZE;
-    int maxRow = SNAKE_BOARD_HEIGHT / SNAKE_BLOCK_SIZE;
-    bool valid = false;
+    initBaitAt(bait, randomNormalBaitType(), specialBait.active ? &specialBait : nullptr);
+}
 
-    while(!valid)
+void updateSpecialBait()
+{
+    if (!specialBait.active)
     {
-        valid = true;
-        bait.x = random(0, maxCol) * SNAKE_BLOCK_SIZE;
-        bait.y = random(0, maxRow) * SNAKE_BLOCK_SIZE;
-        if(headX == bait.x && headY == bait.y)
-        {
-            valid = false;
-            continue;
-        }
-        for (int i = 0; i < nTail; ++i)
-        {
-            if(tailX[i] == bait.x && tailY[i] == bait.y)
-            {
-                valid = false;
-                break;
-            }
-        }
+        return;
+    }
+
+    if (currTime - specialBait.spawnedAt >= SPECIAL_BAIT_LIFETIME)
+    {
+        clearBait(specialBait);
+        specialBait.active = false;
     }
 }
 
@@ -328,14 +540,31 @@ void isGameOver()
 
 bool eat()
 {
-    if (headX == bait.x && headY == bait.y) 
+    if (bait.active && headX == bait.x && headY == bait.y) 
     { 
-        tft_snake.fillRect(bait.x, bait.y, SNAKE_BLOCK_SIZE, SNAKE_BLOCK_SIZE, GAME_GREEN); //Delete bait
-        nTail++;
+        clearBait(bait);
+        applyBaitEffect(bait.type);
+        normalBaitEaten++;
         initBait();
+
+        if (normalBaitEaten % 5 == 0)
+        {
+            spawnSpecialBait();
+        }
+
         queueSend(SOUND_EAT);
         return true;
     }
+
+    if (specialBait.active && headX == specialBait.x && headY == specialBait.y)
+    {
+        clearBait(specialBait);
+        applyBaitEffect(specialBait.type);
+        specialBait.active = false;
+        queueSend(SOUND_EAT);
+        return true;
+    }
+
     return false;
 }
 
@@ -388,12 +617,24 @@ void drawSnake(snakeColor color)
 }
 
 
-void drawBait()
+void drawBait(const Bait& currentBait)
 {
+    if (!currentBait.active)
+    {
+        return;
+    }
+
     tft_snake.setSwapBytes(true);
-    tft_snake.pushImage(bait.x, bait.y, SNAKE_BLOCK_SIZE, SNAKE_BLOCK_SIZE, (const uint16_t*)baitBmp);
+    tft_snake.pushImage(currentBait.x, currentBait.y, SNAKE_BLOCK_SIZE, SNAKE_BLOCK_SIZE, (const uint16_t*)getBaitBitmap(currentBait.type));
     tft_snake.setSwapBytes(false);;
 }
+
+void drawBait()
+{
+    drawBait(bait);
+    drawBait(specialBait);
+}
+
 void drawPlayingUI()
 {
   // 1. Kẻ vạch phân cách màu trắng
@@ -454,6 +695,10 @@ void drawGameOverUI()
 void gameReset()
 {
     score = 0;
+    normalBaitEaten = 0;
+    moveDelay = BASE_MOVE_DELAY;
+    bait.active = false;
+    specialBait.active = false;
     prevScore = -1; // Ép vẽ lại điểm số lần đầu
     resetSnake();
     snakeDir = right;
