@@ -4,6 +4,7 @@
 
 namespace flappy_bird{
 
+bool wifiConnected = false;
 
 
 namespace {
@@ -39,6 +40,7 @@ bool syncTime(tm &timeinfo)
     {   
         shutdownWifi();
         Serial.println("time wifi failed");
+        wifiConnected = false;
         return false;
     }
 
@@ -48,6 +50,7 @@ bool syncTime(tm &timeinfo)
     {
         shutdownWifi();
         Serial.println("time sync failed");
+        wifiConnected = false;
         return false;
     }
 
@@ -60,7 +63,7 @@ bool syncTime(tm &timeinfo)
         timeinfo.tm_min,
         timeinfo.tm_sec
     );
-
+    wifiConnected = true;
     shutdownWifi();
     return true;
 }

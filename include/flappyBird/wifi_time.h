@@ -9,6 +9,9 @@
 
 namespace flappy_bird
 {
+    extern bool wifiConnected;
+
+
     bool getTime();
     bool syncTime(tm &timeinfo);
 }

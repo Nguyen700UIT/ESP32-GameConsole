@@ -6,10 +6,6 @@
 
 namespace flappy_bird {
 
-enum timeTheme
-{
-    MORNING, NOON, NIGHT
-};
 
 
 

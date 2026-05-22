@@ -17,9 +17,17 @@
 
 namespace flappy_bird {
 
+
+enum timeTheme
+{
+    MORNING, NOON, NIGHT
+};
+
 extern unsigned long long lastTime;
 extern volatile unsigned long lastInterruptTime;
 extern volatile unsigned long lastResetInterruptTime;
+extern unsigned long timerNoWifi;
+extern unsigned long timeWithoutWifi;
 extern volatile bool isUp;
 extern volatile bool reseted;
 extern int score;

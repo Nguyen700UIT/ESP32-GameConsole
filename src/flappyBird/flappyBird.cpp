@@ -142,18 +142,42 @@ void resetGame()
 
 void renderGame(timeTheme theme)
 {
-  switch(theme)
+  if (wifiConnected) //If wifi connected use timeTheme
+    switch(theme)
+    {
+      case MORNING:
+        drawMorning();
+        break;
+      case NOON:
+        drawNoon();
+        break;
+      case NIGHT:
+        drawNight();
+        break;
+    }
+  //Case when wifi not connected
+  else
   {
-    case MORNING:
-      drawMorning();
-      break;
-    case NOON:
-      drawNoon();
-      break;
-    case NIGHT:
-      drawNight();
-      break;
+    if (millis() - timerNoWifi >= 1000)
+    {
+      timerNoWifi = millis();
+      timeWithoutWifi++;
+    }
+    int decision = (timeWithoutWifi / 60) % 3;
+    switch(decision)
+    {
+      case 0:
+        drawMorning();
+        break;
+      case 1:
+        drawNoon();
+        break;
+      case 2:
+        drawNight();
+        break;
+    }
   }
+
 
   drawTube();
   updateAnimation();
