@@ -7,15 +7,16 @@ namespace flappy_bird {
 namespace {
 constexpr uint16_t BACKGROUND_TRANSPARENT = 0x0000;
 constexpr int CELESTIAL_X = 36;
-constexpr int CELESTIAL_Y = 8;
+constexpr int CELESTIAL_Y = 25;
 }
-
 
 timeTheme getTheme()
 {
   struct tm timeinfo;
-  if (!syncTime(timeinfo)) return NOON;
-
+  if (!syncTime(timeinfo)) 
+  {
+    return MORNING;
+  }  
   int hour = timeinfo.tm_hour;
 
   if (hour >= 6 && hour < 14) return MORNING;
@@ -32,6 +33,13 @@ void drawMorning()
   drawBitmapTransparent(canvas, 142, 48, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning2, BACKGROUND_TRANSPARENT);
   drawBitmapTransparent(canvas, 218, 28, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning1, BACKGROUND_TRANSPARENT);
   drawBitmapTransparent(canvas, 274, 78, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning2, BACKGROUND_TRANSPARENT);
+  //
+  drawBitmapTransparent(canvas, 90, 85, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning2, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 175, 95, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning1, BACKGROUND_TRANSPARENT);
+  //
+  drawBitmapTransparent(canvas, 40, 130, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 150, 145, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 240, 130, CLOUD_WIDTH, CLOUD_HEIGHT, cloudMorning2, BACKGROUND_TRANSPARENT);
 }
 
 void drawNoon()
@@ -43,6 +51,12 @@ void drawNoon()
   drawBitmapTransparent(canvas, 118, 66, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon2, BACKGROUND_TRANSPARENT);
   drawBitmapTransparent(canvas, 198, 34, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon1, BACKGROUND_TRANSPARENT);
   drawBitmapTransparent(canvas, 274, 84, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon2, BACKGROUND_TRANSPARENT);
+  //
+  drawBitmapTransparent(canvas, 30, 100, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon2, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 170, 115, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon1, BACKGROUND_TRANSPARENT);
+  //
+  drawBitmapTransparent(canvas, 60, 150, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 230, 160, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNoon2, BACKGROUND_TRANSPARENT);
 }
 
 void drawNight()
@@ -51,7 +65,7 @@ void drawNight()
   canvas.fillSprite(colorNight);
   drawBitmapTransparent(canvas, CELESTIAL_X, CELESTIAL_Y, MOON_WIDTH, MOON_HEIGHT, moon, BACKGROUND_TRANSPARENT);
 
-  const unsigned long blinkFrame = (millis() / 500) % 4;
+  const unsigned long blinkFrame = (millis() / 500) % 8;
   if (blinkFrame != 1) {
     drawBitmapTransparent(canvas, 58, 24, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
   }
@@ -61,11 +75,28 @@ void drawNight()
   if (blinkFrame != 3) {
     drawBitmapTransparent(canvas, 250, 34, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
   }
+  if (blinkFrame != 4) {
+    drawBitmapTransparent(canvas, 35, 125, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
+  if (blinkFrame != 5) {
+    drawBitmapTransparent(canvas, 182, 92, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
+  if (blinkFrame != 6) {
+    drawBitmapTransparent(canvas, 285, 160, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
+  if (blinkFrame != 7) {
+    drawBitmapTransparent(canvas, 100, 152, STAR_WIDTH, STAR_HEIGHT, star, BACKGROUND_TRANSPARENT);
+  }
 
+  drawBitmapTransparent(canvas, 165, 30, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight2, BACKGROUND_TRANSPARENT);
+  //
   drawBitmapTransparent(canvas, 54, 64, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight1, BACKGROUND_TRANSPARENT);
   drawBitmapTransparent(canvas, 122, 92, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight2, BACKGROUND_TRANSPARENT);
-  drawBitmapTransparent(canvas, 204, 58, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight1, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 220, 58, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight1, BACKGROUND_TRANSPARENT);
   drawBitmapTransparent(canvas, 272, 100, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight2, BACKGROUND_TRANSPARENT);
+  //
+  drawBitmapTransparent(canvas, 20, 145, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight2, BACKGROUND_TRANSPARENT);
+  drawBitmapTransparent(canvas, 190, 120, CLOUD_WIDTH, CLOUD_HEIGHT, cloudNight1, BACKGROUND_TRANSPARENT);
 }
 
 void collisionLogic()
