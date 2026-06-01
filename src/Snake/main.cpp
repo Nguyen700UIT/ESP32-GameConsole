@@ -83,12 +83,16 @@ void tick()
                 }
 
                 renderBoard(ate, color);
-                recordFpsFrame();
             }
             else
             {
                 drawGameOverUI();
             }
+        }
+
+        if (!gameOver)
+        {
+            recordFpsFrame();
         }
     }
     else

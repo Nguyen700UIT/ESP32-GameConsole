@@ -8,7 +8,7 @@ void FpsCounter::reset(uint32_t nowMs)
     frameCount_ = 0;
     fpsTotal_ = 0;
     stats_ = FpsStats{};
-    hasLastFrame_ = true;
+    hasLastFrame_ = false;
     hasStats_ = false;
 }
 
@@ -16,7 +16,8 @@ void FpsCounter::recordFrame(uint32_t nowMs)
 {
     if (!hasLastFrame_)
     {
-        reset(nowMs);
+        lastFrameAtMs_ = nowMs;
+        hasLastFrame_ = true;
         return;
     }
 
