@@ -11,6 +11,26 @@ namespace snake {
 
 namespace{
     snakeColor color;
+    console::FpsCounter fpsCounter;
+    unsigned long lastFpsDrawAt = 0;
+    constexpr unsigned long kFpsDrawIntervalMs = 250;
+
+    void resetFpsCounter()
+    {
+        fpsCounter.reset(millis());
+        lastFpsDrawAt = 0;
+    }
+
+    void recordFpsFrame()
+    {
+        unsigned long now = millis();
+        fpsCounter.recordFrame(now);
+        if (fpsCounter.hasStats() && now - lastFpsDrawAt >= kFpsDrawIntervalMs)
+        {
+            drawFpsStats(fpsCounter.stats());
+            lastFpsDrawAt = now;
+        }
+    }
 }
 void enter()
 {
@@ -25,6 +45,7 @@ void enter()
     isLeft = false;
     isRight = false;
     reseted = false;
+    resetFpsCounter();
     
 }
 
@@ -62,6 +83,11 @@ void tick()
                 }
 
                 renderBoard(ate, color);
+                recordFpsFrame();
+            }
+            else
+            {
+                drawGameOverUI();
             }
         }
     }
@@ -72,6 +98,7 @@ void tick()
         {
             gameReset();
             color = getColor();
+            resetFpsCounter();
             reseted = false;
         }
     }

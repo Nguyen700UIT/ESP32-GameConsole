@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "Tetris/config.h"
 #include "Tetris/pieces.h"
+#include "console/fps_counter.h"
 
 //Tetris board matrix 200x240 pixel
 #define BOARD_NUM_ROW 12 
@@ -60,6 +61,7 @@ void drawPiece();
 void drawGhostPiece();
 void drawDeathUI();
 void drawScore();
+void drawFpsStats(const console::FpsStats& stats);
 void renderBoard();
 
 }

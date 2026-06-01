@@ -7,13 +7,38 @@
 
 namespace pong {
 
+namespace {
+    console::FpsCounter fpsCounter;
+    unsigned long lastFpsDrawAt = 0;
+    constexpr unsigned long kFpsDrawIntervalMs = 250;
+
+    void resetFpsCounter()
+    {
+        fpsCounter.reset(millis());
+        lastFpsDrawAt = 0;
+    }
+
+    void recordFpsFrame()
+    {
+        unsigned long now = millis();
+        fpsCounter.recordFrame(now);
+        if (fpsCounter.hasStats() && now - lastFpsDrawAt >= kFpsDrawIntervalMs)
+        {
+            drawFpsStats(fpsCounter.stats());
+            lastFpsDrawAt = now;
+        }
+    }
+}
+
 void enter()
 {
     initAudio();
     initDisplay();
     initAI();
     resetGame();
+    resetFpsCounter();
     render();
+    recordFpsFrame();
     isUp = false;
     isDown = false;
     reseted = false;
@@ -27,6 +52,7 @@ void tick()
             reseted = false;
         gameLogicForAIML();
         render();
+        recordFpsFrame();
     }
     else
     {
@@ -35,7 +61,9 @@ void tick()
         {
             tft.fillScreen(TFT_BLACK);
             resetGame();
+            resetFpsCounter();
             render();
+            recordFpsFrame();
             reseted = false;
         }
     }

@@ -3,6 +3,7 @@
 #include "pong/display.h"
 #include "pong/paddle.h"
 #include "pong/ball.h"
+#include "console/fps_counter.h"
 
 
 #define AI_PREDICTION_INTERVAL 100
@@ -32,7 +33,7 @@ void gameLogic();
 void resetGame();
 void drawPlayingUI();
 void drawScore();
+void drawFpsStats(const console::FpsStats& stats);
 void render();
 void drawGameOver();
-
 }

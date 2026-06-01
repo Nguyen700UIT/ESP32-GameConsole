@@ -341,6 +341,19 @@ void drawScore()
   tft.printf("%05d" , score);
 }
 
+void drawFpsStats(const console::FpsStats& stats)
+{
+  tft.fillRect(BOARD_PIXEL_WIDTH + 5, 205, 110, 26, TFT_BLACK);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_CYAN, TFT_BLACK);
+  tft.setCursor(BOARD_PIXEL_WIDTH + 5, 205);
+  tft.printf("FPS %u MN %u", stats.current, stats.minimum);
+  tft.setCursor(BOARD_PIXEL_WIDTH + 5, 217);
+  tft.printf("MX %u AV %u", stats.maximum, stats.average);
+}
+  
+
+  
 void drawPlayingUI()
 {
   tft.drawFastVLine(BOARD_PIXEL_WIDTH, 0, BOARD_PIXEL_HEIGHT, TFT_WHITE);

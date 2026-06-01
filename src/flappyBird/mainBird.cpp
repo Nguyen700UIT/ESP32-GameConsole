@@ -12,6 +12,26 @@ namespace flappy_bird {
 namespace {
   int savedBestScore = 0;
   timeTheme theme;
+  console::FpsCounter fpsCounter;
+  unsigned long lastFpsDrawAt = 0;
+  constexpr unsigned long kFpsDrawIntervalMs = 250;
+
+  void resetFpsCounter()
+  {
+    fpsCounter.reset(millis());
+    lastFpsDrawAt = 0;
+  }
+
+  void recordFpsFrame()
+  {
+    unsigned long now = millis();
+    fpsCounter.recordFrame(now);
+    if (fpsCounter.hasStats() && now - lastFpsDrawAt >= kFpsDrawIntervalMs)
+    {
+      drawFpsStats(fpsCounter.stats());
+      lastFpsDrawAt = now;
+    }
+  }
 }
 
 void enter()
@@ -23,7 +43,9 @@ void enter()
   initDisplay();
   resetGame();
   theme = getTheme();
+  resetFpsCounter();
   renderGame(theme);
+  recordFpsFrame();
   reseted = false;
 }
 
@@ -46,6 +68,7 @@ void tick()
     }
     updateTubes();
     renderGame(theme);
+    recordFpsFrame();
     if (reseted) 
     {
       reseted = false;
@@ -57,6 +80,7 @@ void tick()
     {
       reseted = false;
       resetGame();
+      resetFpsCounter();
     }
   }
 }

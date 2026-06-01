@@ -328,6 +328,19 @@ void drawScore()
     }
 }
 
+void drawFpsStats(const console::FpsStats& stats)
+{
+    tft.fillRect(10, GAME_HEIGHT + 2, 170, 8, TFT_DARKGREY);
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_CYAN, TFT_DARKGREY);
+    tft.setCursor(10, GAME_HEIGHT + 2);
+    tft.printf("FPS %u MN %u MX %u AV %u",
+               static_cast<unsigned int>(stats.current),
+               static_cast<unsigned int>(stats.minimum),
+               static_cast<unsigned int>(stats.maximum),
+               static_cast<unsigned int>(stats.average));
+}
+
 void gameLogicForAIML()
 {
     unsigned long now = millis();

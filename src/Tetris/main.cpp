@@ -5,9 +5,33 @@
 #include "Tetris/tetris.h"
 
 namespace tetris {
+namespace {
+  console::FpsCounter fpsCounter;
+  unsigned long lastFpsDrawAt = 0;
+  constexpr unsigned long kFpsDrawIntervalMs = 250;
+
+  void resetFpsCounter()
+  {
+    fpsCounter.reset(millis());
+    lastFpsDrawAt = 0;
+  }
+
+  void recordFpsFrame()
+  {
+    unsigned long now = millis();
+    fpsCounter.recordFrame(now);
+    if (fpsCounter.hasStats() && now - lastFpsDrawAt >= kFpsDrawIntervalMs)
+    {
+      drawFpsStats(fpsCounter.stats());
+      lastFpsDrawAt = now;
+    }
+  }
+}
+
 void enter()
 {
   initDisplay();
+
   initAudio();
   gameReset();
   drawPlayingUI();
@@ -18,6 +42,7 @@ void enter()
   isLeft = false;
   isRight = false;
   reseted = false;
+  resetFpsCounter();
 }
 
 void tick()
@@ -64,6 +89,7 @@ void tick()
         drawNextPiece();
         drawScore();
         drawPlayingUI();
+        resetFpsCounter();
         reseted = false;
       }
     }
@@ -77,6 +103,7 @@ void tick()
       drawDeathUI();
     }
   }
+  recordFpsFrame();
 }
 
 void exit()

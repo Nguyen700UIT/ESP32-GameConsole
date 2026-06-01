@@ -676,6 +676,19 @@ void drawScore()
     }
 }
 
+void drawFpsStats(const console::FpsStats& stats)
+{
+    tft_snake.fillRect(10, GAME_HEIGHT + 2, 170, 8, TFT_DARKGREY);
+    tft_snake.setTextSize(1);
+    tft_snake.setTextColor(TFT_CYAN, TFT_DARKGREY);
+    tft_snake.setCursor(10, GAME_HEIGHT + 2);
+    tft_snake.printf("FPS %u MN %u MX %u AV %u",
+                     static_cast<unsigned int>(stats.current),
+                     static_cast<unsigned int>(stats.minimum),
+                     static_cast<unsigned int>(stats.maximum),
+                     static_cast<unsigned int>(stats.average));
+}
+
 void renderBoard(bool &ate, snakeColor color)
 {
     drawSnake(color);

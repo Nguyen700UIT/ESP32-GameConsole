@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include "console/fps_counter.h"
 #include "Snake/snake_bait.h"
 
 namespace snake {
@@ -78,6 +79,7 @@ void drawBait();
 void isGameOver();
 void drawPlayingUI();
 void drawScore();
+void drawFpsStats(const console::FpsStats& stats);
 void drawGameOverUI();
 void renderBoard(bool& ate, snakeColor color);
 void gameReset();
